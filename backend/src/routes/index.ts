@@ -4,6 +4,8 @@ import authRoutes from './authRoutes';
 import organizationRoutes from './organizationRoutes';
 import animalRoutes from './animalRoutes';
 import vaccineRoutes from './vaccineRoutes';
+import financialRoutes from './financialRoutes';
+import analyticsRoutes from './analyticsRoutes';
 import { membersRoutes } from './membersRoutes';
 
 const router = Router();
@@ -24,5 +26,7 @@ router.use('/organizations', organizationRoutes);
 router.use('/organizations', membersRoutes); // Rotas de membros
 router.use('/animals', animalRoutes);
 router.use('/vaccines', vaccineRoutes);
+router.use('/financial', financialRoutes);
+router.use('/analytics', analyticsRoutes);
 
 export default router;

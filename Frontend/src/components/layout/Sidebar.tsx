@@ -18,6 +18,9 @@ import {
   Assessment,
   Settings,
   Home,
+  Favorite,
+  CheckCircle,
+  AccountBalance,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -31,6 +34,9 @@ const menuItems = [
   { text: 'Cadastrar Organização', icon: <Business />, path: '/register-organization' },
   { text: 'Animais', icon: <Pets />, path: '/animals' },
   { text: 'Membros', icon: <People />, path: '/members' },
+  { text: 'Disponíveis para Adoção', icon: <Favorite />, path: '/adoption/available' },
+  { text: 'Animais Adotados', icon: <CheckCircle />, path: '/adoption/adopted' },
+  { text: 'Relatórios Financeiros', icon: <AccountBalance />, path: '/financial' },
   { text: 'Usuários', icon: <People />, path: '/users' },
   { text: 'Organizações', icon: <Business />, path: '/organizations' },
   { text: 'Relatórios', icon: <Assessment />, path: '/reports' },

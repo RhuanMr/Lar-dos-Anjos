@@ -17,6 +17,9 @@ import Dashboard from './pages/Dashboard';
 import Animals from './pages/Animals';
 import AnimalForm from './pages/AnimalForm';
 import Members from './pages/Members';
+import AvailableAnimals from './pages/AvailableAnimals';
+import AdoptedAnimals from './pages/AdoptedAnimals';
+import FinancialReports from './pages/FinancialReports';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -130,6 +133,30 @@ const App: React.FC = () => {
                 element={
                   <ProtectedRoute>
                     <Members />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/adoption/available"
+                element={
+                  <ProtectedRoute>
+                    <AvailableAnimals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/adoption/adopted"
+                element={
+                  <ProtectedRoute>
+                    <AdoptedAnimals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/financial"
+                element={
+                  <ProtectedRoute>
+                    <FinancialReports />
                   </ProtectedRoute>
                 }
               />
