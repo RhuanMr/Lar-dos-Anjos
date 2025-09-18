@@ -14,6 +14,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import RegisterOrganization from './pages/RegisterOrganization';
 import Dashboard from './pages/Dashboard';
+import Animals from './pages/Animals';
+import AnimalForm from './pages/AnimalForm';
+import Members from './pages/Members';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -95,6 +98,38 @@ const App: React.FC = () => {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/animals"
+                element={
+                  <ProtectedRoute>
+                    <Animals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/animals/new"
+                element={
+                  <ProtectedRoute>
+                    <AnimalForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/animals/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <AnimalForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/members"
+                element={
+                  <ProtectedRoute>
+                    <Members />
                   </ProtectedRoute>
                 }
               />

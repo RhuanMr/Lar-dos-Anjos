@@ -51,6 +51,48 @@ export interface Animal {
   fotos: string[];
   created_at: string;
   updated_at: string;
+  // Campos relacionais
+  project?: {
+    id: string;
+    nome: string;
+  };
+  tutor?: {
+    id: string;
+    nome: string;
+    email: string;
+  };
+  vacinas?: Vaccine[];
+}
+
+export interface Vaccine {
+  id: string;
+  nome: string;
+  data: string;
+  dose: number;
+  animal_id: string;
+  observacoes?: string;
+  created_at: string;
+  // Campos relacionais
+  animal?: {
+    id: string;
+    nome: string;
+    especie: string;
+  };
+}
+
+export interface AnimalHistory {
+  id: string;
+  animal_id: string;
+  action: 'created' | 'updated' | 'status_changed' | 'photos_uploaded' | 'deleted' | 'vaccine_added';
+  description: string;
+  user_id?: string;
+  data?: any;
+  created_at: string;
+  // Campos relacionais
+  user?: {
+    id: string;
+    nome: string;
+  };
 }
 
 // Tipos para formulários
@@ -75,6 +117,25 @@ export interface CreateUserForm {
   role: 'admin' | 'user' | 'membro' | 'voluntario';
   cpf: string;
   endereco_id?: string;
+}
+
+export interface AnimalForm {
+  nome: string;
+  especie: string;
+  raca?: string;
+  idade?: number;
+  condicao_saude?: string;
+  cirurgia?: string;
+  historico?: string;
+  project_id: string;
+}
+
+export interface VaccineForm {
+  nome: string;
+  data: string;
+  dose: number;
+  animal_id: string;
+  observacoes?: string;
 }
 
 // Tipos para respostas da API

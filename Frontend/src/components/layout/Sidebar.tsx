@@ -30,6 +30,7 @@ const menuItems = [
   { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
   { text: 'Cadastrar Organização', icon: <Business />, path: '/register-organization' },
   { text: 'Animais', icon: <Pets />, path: '/animals' },
+  { text: 'Membros', icon: <People />, path: '/members' },
   { text: 'Usuários', icon: <People />, path: '/users' },
   { text: 'Organizações', icon: <Business />, path: '/organizations' },
   { text: 'Relatórios', icon: <Assessment />, path: '/reports' },

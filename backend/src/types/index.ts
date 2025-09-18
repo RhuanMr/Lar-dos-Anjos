@@ -89,6 +89,17 @@ export interface Vacine {
   data: string;
   dose: number;
   animal_id: string;
+  observacoes?: string;
+  created_at: string;
+}
+
+export interface AnimalHistory {
+  id: string;
+  animal_id: string;
+  action: 'created' | 'updated' | 'status_changed' | 'photos_uploaded' | 'deleted' | 'vaccine_added';
+  description: string;
+  user_id?: string;
+  data?: any;
   created_at: string;
 }
 
