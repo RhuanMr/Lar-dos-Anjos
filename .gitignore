@@ -1,0 +1,36 @@
+# Arquivos markdown exceto README
+*.md
+!README.md
+!**/README.md
+
+# Dependências
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Arquivos do editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Arquivos de build
+dist/
+dist-ssr/
+build/
+*.local
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
