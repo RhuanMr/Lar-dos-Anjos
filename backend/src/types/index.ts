@@ -11,6 +11,7 @@ import {
   Identificacao,
   Vacinado,
   StatusAdocaoEnum,
+  StatusAdocao,
 } from './enums';
 
 /* ========== RESPONSE PATTERNS ========== */
@@ -143,39 +144,47 @@ export interface AnimalUpdate {
 /* ========== ADOCOES ========== */
 export interface Adocao {
   id: string;
-  animal_id: string;
-  adotante_id: string;
-  funcionario_id?: string;
-  status: StatusAdocao;
-  data_candidatura: string;
-  data_aprovacao?: string;
-  data_adocao_efetiva?: string;
-  observacoes?: string;
-  criado_em: string;
-  atualizado_em: string;
+  id_projeto: string;
+  id_adotante: string;
+  id_animal: string;
+  dt_adocao?: string;
+  lt_atualizacao?: string;
 }
 
 export interface AdocaoCreate {
-  animal_id: string;
-  adotante_id: string;
-  funcionario_id?: string;
-  observacoes?: string;
+  id_projeto: string;
+  id_adotante: string;
+  id_animal: string;
+  dt_adocao?: string;
+}
+
+export interface AdocaoUpdate {
+  dt_adocao?: string;
+  lt_atualizacao?: string;
 }
 
 /* ========== ATUALIZACOES DE ADOCAO ========== */
 export interface AtualizacaoAdocao {
   id: string;
-  adocao_id: string;
-  status: StatusAtualizacaoAdocao;
-  descricao: string;
-  data_atualizacao: string;
-  criado_em: string;
+  id_adocao: string;
+  id_responsavel: string;
+  prox_dt?: string;
+  status?: StatusAdocaoEnum;
+  observacao?: string;
 }
 
 export interface AtualizacaoAdocaoCreate {
-  adocao_id: string;
-  status: StatusAtualizacaoAdocao;
-  descricao: string;
+  id_adocao: string;
+  id_responsavel: string;
+  prox_dt?: string;
+  status?: StatusAdocaoEnum;
+  observacao?: string;
+}
+
+export interface AtualizacaoAdocaoUpdate {
+  prox_dt?: string;
+  status?: StatusAdocaoEnum;
+  observacao?: string;
 }
 
 /* ========== VOLUNTARIOS ========== */

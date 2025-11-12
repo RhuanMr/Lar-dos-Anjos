@@ -20,6 +20,8 @@ import enderecoRoutes from '@/routes/endereco-routes';
 import doacaoRoutes from '@/routes/doacao-routes';
 import casoMedicoRoutes from '@/routes/caso-medico-routes';
 import vacinaRoutes from '@/routes/vacina-routes';
+import adocaoRoutes from '@/routes/adocao-routes';
+import atualizacaoAdocaoRoutes from '@/routes/atualizacao-adocao-routes';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -75,6 +77,8 @@ app.use('/api', enderecoRoutes);
 app.use('/api', doacaoRoutes);
 app.use('/api', casoMedicoRoutes);
 app.use('/api', vacinaRoutes);
+app.use('/api', adocaoRoutes);
+app.use('/api', atualizacaoAdocaoRoutes);
 
 // Middleware de Tratamento de Erros
 app.use(errorHandler);
@@ -171,7 +175,23 @@ async function startServer() {
       console.log(`   GET    /api/vacinas/:id`);
       console.log(`   POST   /api/vacinas`);
       console.log(`   PATCH  /api/vacinas/:id`);
-      console.log(`   DELETE /api/vacinas/:id\n`);
+      console.log(`   DELETE /api/vacinas/:id`);
+      console.log(`\n🏡 Endpoints de Adoções:`);
+      console.log(`   GET    /api/adocoes`);
+      console.log(`   GET    /api/adocoes/projeto/:projetoId`);
+      console.log(`   GET    /api/adocoes/adotante/:adotanteId`);
+      console.log(`   GET    /api/adocoes/animal/:animalId`);
+      console.log(`   GET    /api/adocoes/:id`);
+      console.log(`   POST   /api/adocoes`);
+      console.log(`   PATCH  /api/adocoes/:id`);
+      console.log(`   DELETE /api/adocoes/:id`);
+      console.log(`\n📝 Endpoints de Atualizações de Adoção:`);
+      console.log(`   GET    /api/atualizacoes-adocao`);
+      console.log(`   GET    /api/atualizacoes-adocao/adocao/:adocaoId`);
+      console.log(`   GET    /api/atualizacoes-adocao/:id`);
+      console.log(`   POST   /api/atualizacoes-adocao`);
+      console.log(`   PATCH  /api/atualizacoes-adocao/:id`);
+      console.log(`   DELETE /api/atualizacoes-adocao/:id\n`);
     });
   } catch (error) {
     console.error('❌ Erro ao iniciar servidor:', error);
