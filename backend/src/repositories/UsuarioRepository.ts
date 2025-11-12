@@ -78,7 +78,7 @@ export class UsuarioRepository {
     const { count, error } = await supabase
       .from('users')
       .select('*', { count: 'exact', head: true })
-      .contains('roles', '["SuperAdmin"]');
+      .contains('roles', '["SUPERADMIN"]');
 
     if (error) throw new Error(error.message);
     return count || 0;

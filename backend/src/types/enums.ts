@@ -1,12 +1,12 @@
 // Enums para o sistema PawHub
 
 export enum Role {
-  SUPER_ADMIN = 'SuperAdmin',
-  ADMINISTRADOR = 'Administrador',
-  FUNCIONARIO = 'Funcionario',
-  VOLUNTARIO = 'Voluntario',
-  ADOTANTE = 'Adotante',
-  DOADOR = 'Doador',
+  SUPER_ADMIN = 'SUPERADMIN',
+  ADMINISTRADOR = 'ADMINISTRADOR',
+  FUNCIONARIO = 'FUNCIONARIO',
+  VOLUNTARIO = 'VOLUNTARIO',
+  ADOTANTE = 'ADOTANTE',
+  DOADOR = 'DOADOR',
 }
 
 export enum Frequencia {
