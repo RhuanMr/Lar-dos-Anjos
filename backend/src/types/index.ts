@@ -262,6 +262,109 @@ export interface AdotanteCreate {
   // Adotante é apenas uma role no usuário, mas podemos ter campos adicionais se necessário
 }
 
+/* ========== ENDERECOS ========== */
+export interface Endereco {
+  id: string;
+  cep: string;
+  estado: UF;
+  cidade: string;
+  bairro: string;
+  numero?: string;
+  complemento?: string;
+}
+
+export interface EnderecoCreate {
+  cep: string;
+  estado: UF;
+  cidade: string;
+  bairro: string;
+  numero?: string;
+  complemento?: string;
+}
+
+export interface EnderecoUpdate {
+  cep?: string;
+  estado?: UF;
+  cidade?: string;
+  bairro?: string;
+  numero?: string;
+  complemento?: string;
+}
+
+/* ========== DOACOES ========== */
+export interface Doacao {
+  id: string;
+  id_user: string;
+  id_project: string;
+  tp_ajuda?: TipoAjuda;
+  tp_pagamento?: TipoPagamento;
+  valor?: number;
+  itens?: string;
+  data?: string;
+  observacao?: string;
+}
+
+export interface DoacaoCreate {
+  id_user: string;
+  id_project: string;
+  tp_ajuda?: TipoAjuda;
+  tp_pagamento?: TipoPagamento;
+  valor?: number;
+  itens?: string;
+  data?: string;
+  observacao?: string;
+}
+
+export interface DoacaoUpdate {
+  tp_ajuda?: TipoAjuda;
+  tp_pagamento?: TipoPagamento;
+  valor?: number;
+  itens?: string;
+  data?: string;
+  observacao?: string;
+}
+
+/* ========== CASOS MEDICOS ========== */
+export interface CasoMedico {
+  id: string;
+  id_animal: string;
+  finalizado: boolean;
+  descricao?: string;
+  observacao?: string;
+}
+
+export interface CasoMedicoCreate {
+  id_animal: string;
+  finalizado?: boolean;
+  descricao?: string;
+  observacao?: string;
+}
+
+export interface CasoMedicoUpdate {
+  finalizado?: boolean;
+  descricao?: string;
+  observacao?: string;
+}
+
+/* ========== VACINAS ========== */
+export interface Vacina {
+  id: string;
+  id_animal: string;
+  nome: string;
+  data_aplicacao: string;
+}
+
+export interface VacinaCreate {
+  id_animal: string;
+  nome: string;
+  data_aplicacao: string;
+}
+
+export interface VacinaUpdate {
+  nome?: string;
+  data_aplicacao?: string;
+}
+
 /* ========== PROJETO USUARIO ========== */
 export interface ProjetoUsuario {
   id: string;
