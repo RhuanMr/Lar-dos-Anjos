@@ -6,6 +6,11 @@ import {
   TipoAnimal,
   StatusAnimal,
   StatusAtualizacaoAdocao,
+  TipoAjuda,
+  TipoPagamento,
+  Identificacao,
+  Vacinado,
+  StatusAdocaoEnum,
 } from './enums';
 
 /* ========== RESPONSE PATTERNS ========== */
@@ -104,29 +109,35 @@ export interface ProjetoCreate {
 /* ========== ANIMAIS ========== */
 export interface Animal {
   id: string;
-  projeto_id: string;
+  id_projeto: string;
   nome: string;
-  tipo: TipoAnimal;
-  raca?: string;
-  idade_estimada?: number;
-  peso?: number;
-  descricao?: string;
-  status: StatusAnimal;
-  data_resgate?: string;
-  foto_url?: string;
-  criado_em: string;
-  atualizado_em: string;
+  foto?: string;
+  entrada: string; // Data de entrada
+  origem?: string;
+  identificacao?: Identificacao;
+  vacinado?: Vacinado;
+  dt_castracao?: string;
 }
 
 export interface AnimalCreate {
-  projeto_id: string;
+  id_projeto: string;
   nome: string;
-  tipo: TipoAnimal;
-  raca?: string;
-  idade_estimada?: number;
-  peso?: number;
-  descricao?: string;
-  data_resgate?: string;
+  foto?: string;
+  entrada: string;
+  origem?: string;
+  identificacao?: Identificacao;
+  vacinado?: Vacinado;
+  dt_castracao?: string;
+}
+
+export interface AnimalUpdate {
+  nome?: string;
+  foto?: string;
+  entrada?: string;
+  origem?: string;
+  identificacao?: Identificacao;
+  vacinado?: Vacinado;
+  dt_castracao?: string;
 }
 
 /* ========== ADOCOES ========== */
@@ -167,38 +178,88 @@ export interface AtualizacaoAdocaoCreate {
   descricao: string;
 }
 
-/* ========== DOADORES ========== */
-export interface Doador {
-  id: string;
-  usuario_id: string;
-  descricao_interesse?: string;
-  frequencia: Frequencia;
-  criado_em: string;
-  atualizado_em: string;
-}
-
 /* ========== VOLUNTARIOS ========== */
 export interface Voluntario {
-  id: string;
-  usuario_id: string;
-  projeto_id: string;
-  descricao_interesse?: string;
-  habilidades?: string;
-  disponibilidade?: string;
-  criado_em: string;
-  atualizado_em: string;
+  id_usuario: string;
+  id_projeto: string;
+  servico?: string;
+  frequencia?: Frequencia;
+  lt_data?: string; // Data do último serviço
+  px_data?: string; // Data do próximo serviço
+}
+
+export interface VoluntarioCreate {
+  id_usuario: string;
+  id_projeto: string;
+  servico?: string;
+  frequencia?: Frequencia;
+  lt_data?: string;
+  px_data?: string;
+}
+
+export interface VoluntarioUpdate {
+  servico?: string;
+  frequencia?: Frequencia;
+  lt_data?: string;
+  px_data?: string;
 }
 
 /* ========== FUNCIONARIOS ========== */
 export interface Funcionario {
-  id: string;
-  usuario_id: string;
-  projeto_id: string;
-  cargo?: string;
-  data_contratacao?: string;
-  possui_privilegios: boolean;
-  criado_em: string;
-  atualizado_em: string;
+  id_usuario: string;
+  id_projeto: string;
+  privilegios: boolean;
+  funcao?: string;
+  observacao?: string;
+}
+
+export interface FuncionarioCreate {
+  id_usuario: string;
+  id_projeto: string;
+  privilegios?: boolean;
+  funcao?: string;
+  observacao?: string;
+}
+
+export interface FuncionarioUpdate {
+  privilegios?: boolean;
+  funcao?: string;
+  observacao?: string;
+}
+
+/* ========== DOADORES ========== */
+export interface Doador {
+  id_usuario: string;
+  id_projeto: string;
+  observacao?: string;
+  frequencia?: Frequencia;
+  dt_lembrete?: string; // Data de lembrete
+  lt_data?: string; // Data da última ajuda
+  px_data?: string; // Próxima data de ajuda
+}
+
+export interface DoadorCreate {
+  id_usuario: string;
+  id_projeto: string;
+  observacao?: string;
+  frequencia?: Frequencia;
+  dt_lembrete?: string;
+  lt_data?: string;
+  px_data?: string;
+}
+
+export interface DoadorUpdate {
+  observacao?: string;
+  frequencia?: Frequencia;
+  dt_lembrete?: string;
+  lt_data?: string;
+  px_data?: string;
+}
+
+/* ========== ADOTANTES ========== */
+export interface AdotanteCreate {
+  id_usuario: string;
+  // Adotante é apenas uma role no usuário, mas podemos ter campos adicionais se necessário
 }
 
 /* ========== PROJETO USUARIO ========== */

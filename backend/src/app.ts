@@ -11,6 +11,10 @@ import { testConnection } from '@/database/supabase';
 import { errorHandler } from '@/middlewares/errorHandler';
 import usuarioRoutes from '@/routes/usuario-routes';
 import projetoRoutes from '@/routes/projeto-routes';
+import voluntarioRoutes from '@/routes/voluntario-routes';
+import funcionarioRoutes from '@/routes/funcionario-routes';
+import doadorRoutes from '@/routes/doador-routes';
+import adotanteRoutes from '@/routes/adotante-routes';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -57,6 +61,10 @@ app.get('/api/status', (_req, res) => {
 // Rotas da aplicação
 app.use('/api', usuarioRoutes);
 app.use('/api', projetoRoutes);
+app.use('/api', voluntarioRoutes);
+app.use('/api', funcionarioRoutes);
+app.use('/api', doadorRoutes);
+app.use('/api', adotanteRoutes);
 
 // Middleware de Tratamento de Erros
 app.use(errorHandler);
@@ -89,7 +97,36 @@ async function startServer() {
       console.log(`   POST   /api/projetos`);
       console.log(`   GET    /api/projetos/:id`);
       console.log(`   PATCH  /api/projetos/:id`);
-      console.log(`   DELETE /api/projetos/:id\n`);
+      console.log(`   DELETE /api/projetos/:id`);
+      console.log(`\n📋 Endpoints de Voluntários:`);
+      console.log(`   GET    /api/voluntarios`);
+      console.log(`   GET    /api/voluntarios/projeto/:projetoId`);
+      console.log(`   GET    /api/voluntarios/usuario/:usuarioId`);
+      console.log(`   GET    /api/voluntarios/:usuarioId/:projetoId`);
+      console.log(`   POST   /api/voluntarios`);
+      console.log(`   PATCH  /api/voluntarios/:usuarioId/:projetoId`);
+      console.log(`   DELETE /api/voluntarios/:usuarioId/:projetoId`);
+      console.log(`\n👔 Endpoints de Funcionários:`);
+      console.log(`   GET    /api/funcionarios`);
+      console.log(`   GET    /api/funcionarios/projeto/:projetoId`);
+      console.log(`   GET    /api/funcionarios/usuario/:usuarioId`);
+      console.log(`   GET    /api/funcionarios/:usuarioId/:projetoId`);
+      console.log(`   POST   /api/funcionarios`);
+      console.log(`   PATCH  /api/funcionarios/:usuarioId/:projetoId`);
+      console.log(`   DELETE /api/funcionarios/:usuarioId/:projetoId`);
+      console.log(`   PATCH  /api/funcionarios/:usuarioId/:projetoId/conceder-privilegios`);
+      console.log(`   PATCH  /api/funcionarios/:usuarioId/:projetoId/remover-privilegios`);
+      console.log(`\n💰 Endpoints de Doadores:`);
+      console.log(`   GET    /api/doadores`);
+      console.log(`   GET    /api/doadores/projeto/:projetoId`);
+      console.log(`   GET    /api/doadores/usuario/:usuarioId`);
+      console.log(`   GET    /api/doadores/:usuarioId/:projetoId`);
+      console.log(`   POST   /api/doadores`);
+      console.log(`   PATCH  /api/doadores/:usuarioId/:projetoId`);
+      console.log(`   DELETE /api/doadores/:usuarioId/:projetoId`);
+      console.log(`\n🏠 Endpoints de Adotantes:`);
+      console.log(`   POST   /api/adotantes`);
+      console.log(`   DELETE /api/adotantes/:usuarioId\n`);
     });
   } catch (error) {
     console.error('❌ Erro ao iniciar servidor:', error);

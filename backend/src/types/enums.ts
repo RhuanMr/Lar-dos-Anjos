@@ -10,10 +10,9 @@ export enum Role {
 }
 
 export enum Frequencia {
-  DIARIA = 'Diaria',
-  SEMANAL = 'Semanal',
-  MENSAL = 'Mensal',
-  OCASIONAL = 'Ocasional',
+  MENSAL = 'mensal',
+  PONTUAL = 'pontual',
+  EVENTUAL = 'eventual',
 }
 
 export enum StatusAdocao {
@@ -76,4 +75,35 @@ export enum StatusAtualizacaoAdocao {
   PENDENTE = 'Pendente',
   OK = 'Ok',
   PROBLEMA = 'Problema',
+}
+
+export enum TipoAjuda {
+  FINANCEIRA = 'Financeira',
+  ITENS = 'Itens',
+  OUTRO = 'Outro',
+}
+
+export enum TipoPagamento {
+  PIX = 'Pix',
+  DINHEIRO = 'Dinheiro',
+  TRANSFERENCIA = 'Transferencia',
+  OUTRO = 'Outro',
+}
+
+export enum Identificacao {
+  MICROCHIP = 'microchip',
+  COLETRA = 'coleira',
+}
+
+export enum Vacinado {
+  SIM = 'Sim',
+  NAO = 'Nao',
+  PARCIAL = 'Parcial',
+}
+
+export enum StatusAdocaoEnum {
+  OK = 'ok',
+  PENDENTE = 'pendente',
+  VISITA_AGENDADA = 'visita_agendada',
+  SEM_RESPOSTA = 'sem_resposta',
 }
