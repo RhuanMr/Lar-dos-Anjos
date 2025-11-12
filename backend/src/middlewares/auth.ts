@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Role } from '@/types/enums';
 import { ApiResponse } from '@/types/index';
+import { AuthService } from '@/services/AuthService';
 
 // Estender interface do Express para incluir usuário
 declare global {
@@ -15,35 +16,51 @@ declare global {
   }
 }
 
-export function authenticateToken(
+export async function authenticateToken(
   req: Request,
   res: Response,
   next: NextFunction
-): void {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+): Promise<void> {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) {
+    if (!token) {
+      const response: ApiResponse = {
+        success: false,
+        error: 'Token não fornecido',
+      };
+      res.status(401).json(response);
+      return;
+    }
+
+    // Verificar token JWT
+    const authService = new AuthService();
+    const decoded = await authService.verificarToken(token);
+
+    // Adicionar informações do usuário à requisição
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      roles: decoded.roles,
+    };
+
+    next();
+  } catch (error: any) {
     const response: ApiResponse = {
       success: false,
-      error: 'Token não fornecido',
+      error: error.message || 'Token inválido',
     };
-    res.status(401).json(response);
-    return;
+
+    const statusCode =
+      error.message?.includes('expirado') ||
+      error.message?.includes('inválido') ||
+      error.message?.includes('não fornecido')
+        ? 401
+        : 403;
+
+    res.status(statusCode).json(response);
   }
-
-  // Aqui você deve verificar o token com sua lógica de autenticação
-  // Exemplo com JWT:
-  // try {
-  //   const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-  //   req.user = decoded;
-  //   next();
-  // } catch (error) {
-  //   res.status(403).json({ success: false, error: 'Token inválido' });
-  // }
-
-  // Por enquanto, apenas avançar (depois integrar com JWT/Supabase)
-  next();
 }
 
 export function checkRole(...requiredRoles: Role[]) {

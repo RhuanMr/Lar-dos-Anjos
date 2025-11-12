@@ -9,6 +9,7 @@ dotenv.config();
 
 import { testConnection } from '@/database/supabase';
 import { errorHandler } from '@/middlewares/errorHandler';
+import authRoutes from '@/routes/auth-routes';
 import usuarioRoutes from '@/routes/usuario-routes';
 import projetoRoutes from '@/routes/projeto-routes';
 import voluntarioRoutes from '@/routes/voluntario-routes';
@@ -66,6 +67,7 @@ app.get('/api/status', (_req, res) => {
 });
 
 // Rotas da aplicação
+app.use('/api', authRoutes);
 app.use('/api', usuarioRoutes);
 app.use('/api', projetoRoutes);
 app.use('/api', voluntarioRoutes);
@@ -101,6 +103,9 @@ async function startServer() {
       console.log(`\n📚 Endpoints disponíveis:`);
       console.log(`   GET    /api/health`);
       console.log(`   GET    /api/status`);
+      console.log(`\n🔐 Endpoints de Autenticação:`);
+      console.log(`   POST   /api/auth/login`);
+      console.log(`   POST   /api/auth/verify`);
       console.log(`   GET    /api/usuarios`);
       console.log(`   POST   /api/usuarios`);
       console.log(`   GET    /api/usuarios/:id`);

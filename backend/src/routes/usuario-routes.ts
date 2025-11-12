@@ -36,4 +36,10 @@ router.patch(
   (req, res) => controller.promoverParaAdmin(req, res)
 );
 
+router.patch(
+  '/usuarios/:id/senha',
+  authenticateToken,
+  (req, res) => controller.definirSenha(req, res)
+);
+
 export default router;

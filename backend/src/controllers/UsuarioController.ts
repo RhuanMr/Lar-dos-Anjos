@@ -166,4 +166,46 @@ export class UsuarioController {
       });
     }
   }
+
+  async definirSenha(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          error: 'ID não fornecido',
+        });
+        return;
+      }
+
+      const { senha, performadoPor } = req.body;
+      if (!senha) {
+        res.status(400).json({
+          success: false,
+          error: 'Senha é obrigatória',
+        });
+        return;
+      }
+
+      // Se não fornecer performadoPor, usar o ID do usuário autenticado (se houver)
+      const usuarioAutenticado = req.user?.id;
+      const performadoPorFinal = performadoPor || usuarioAutenticado;
+
+      await this.service.definirSenha(id, senha, performadoPorFinal);
+      const response: ApiResponse = {
+        success: true,
+        message: 'Senha definida com sucesso',
+      };
+      res.json(response);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Erro ao definir senha';
+      res.status(400).json({
+        success: false,
+        error: message,
+      });
+    }
+  }
 }

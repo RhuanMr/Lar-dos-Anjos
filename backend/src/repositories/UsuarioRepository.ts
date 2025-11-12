@@ -4,7 +4,7 @@ import { Usuario, UsuarioCreate, UsuarioUpdate } from '@/types/index';
 export class UsuarioRepository {
   async findAll(): Promise<Usuario[]> {
     const { data, error } = await supabase
-      .from('usuarios')
+      .from('users')
       .select('*')
       .order('criado_em', { ascending: false });
 
@@ -14,7 +14,7 @@ export class UsuarioRepository {
 
   async findById(id: string): Promise<Usuario | null> {
     const { data, error } = await supabase
-      .from('usuarios')
+      .from('users')
       .select('*')
       .eq('id', id)
       .single();
@@ -25,7 +25,7 @@ export class UsuarioRepository {
 
   async findByEmail(email: string): Promise<Usuario | null> {
     const { data, error } = await supabase
-      .from('usuarios')
+      .from('users')
       .select('*')
       .eq('email', email)
       .single();
@@ -36,7 +36,7 @@ export class UsuarioRepository {
 
   async findByCpf(cpf: string): Promise<Usuario | null> {
     const { data, error } = await supabase
-      .from('usuarios')
+      .from('users')
       .select('*')
       .eq('cpf', cpf)
       .single();
@@ -47,7 +47,7 @@ export class UsuarioRepository {
 
   async create(usuario: UsuarioCreate): Promise<Usuario> {
     const { data, error } = await supabase
-      .from('usuarios')
+      .from('users')
       .insert([usuario])
       .select()
       .single();
@@ -58,7 +58,7 @@ export class UsuarioRepository {
 
   async update(id: string, usuario: UsuarioUpdate): Promise<Usuario> {
     const { data, error } = await supabase
-      .from('usuarios')
+      .from('users')
       .update(usuario)
       .eq('id', id)
       .select()
@@ -69,14 +69,14 @@ export class UsuarioRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const { error } = await supabase.from('usuarios').delete().eq('id', id);
+    const { error } = await supabase.from('users').delete().eq('id', id);
 
     if (error) throw new Error(error.message);
   }
 
   async countSuperAdmins(): Promise<number> {
     const { count, error } = await supabase
-      .from('usuarios')
+      .from('users')
       .select('*', { count: 'exact', head: true })
       .contains('roles', '["SuperAdmin"]');
 

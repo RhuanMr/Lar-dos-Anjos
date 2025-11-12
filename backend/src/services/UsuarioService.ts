@@ -1,6 +1,7 @@
 import { UsuarioRepository } from '@/repositories/UsuarioRepository';
 import { Usuario, UsuarioCreate, UsuarioUpdate } from '@/types/index';
 import { Role } from '@/types/enums';
+import { AuthService } from './AuthService';
 
 const MAX_SUPER_ADMINS = 2;
 
@@ -94,5 +95,38 @@ export class UsuarioService {
 
     // Aqui você teria uma query para atualizar privilégios na tabela 'funcionarios'
     // Por enquanto, apenas validamos
+  }
+
+  async definirSenha(
+    usuarioId: string,
+    senha: string,
+    performadoPor?: string
+  ): Promise<void> {
+    // Verificar se o usuário existe
+    await this.buscarPorId(usuarioId);
+
+    // Se performadoPor for fornecido, verificar permissões
+    if (performadoPor) {
+      const performador = await this.buscarPorId(performadoPor);
+      const temPermissao =
+        performador.roles.includes(Role.SUPER_ADMIN) ||
+        performador.roles.includes(Role.ADMINISTRADOR) ||
+        performador.id === usuarioId; // Usuário pode definir sua própria senha
+
+      if (!temPermissao) {
+        throw new Error(
+          'Apenas SuperAdmin, Administrador ou o próprio usuário podem definir senha'
+        );
+      }
+    }
+
+    // Hash da senha
+    const authService = new AuthService();
+    const senhaHash = await authService.hashSenha(senha);
+
+    // Atualizar senha no banco
+    await this.repository.update(usuarioId, {
+      senha_hash: senhaHash,
+    } as any);
   }
 }
