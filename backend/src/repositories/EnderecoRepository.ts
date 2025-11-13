@@ -4,7 +4,7 @@ import { Endereco, EnderecoCreate, EnderecoUpdate } from '@/types/index';
 export class EnderecoRepository {
   async findAll(): Promise<Endereco[]> {
     const { data, error } = await supabase
-      .from('enderecos')
+      .from('address')
       .select('*')
       .order('cidade', { ascending: true });
 
@@ -14,7 +14,7 @@ export class EnderecoRepository {
 
   async findById(id: string): Promise<Endereco | null> {
     const { data, error } = await supabase
-      .from('enderecos')
+      .from('address')
       .select('*')
       .eq('id', id)
       .single();
@@ -25,7 +25,7 @@ export class EnderecoRepository {
 
   async create(endereco: EnderecoCreate): Promise<Endereco> {
     const { data, error } = await supabase
-      .from('enderecos')
+      .from('address')
       .insert([endereco])
       .select()
       .single();
@@ -36,7 +36,7 @@ export class EnderecoRepository {
 
   async update(id: string, endereco: EnderecoUpdate): Promise<Endereco> {
     const { data, error } = await supabase
-      .from('enderecos')
+      .from('address')
       .update(endereco)
       .eq('id', id)
       .select()
@@ -47,7 +47,7 @@ export class EnderecoRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const { error } = await supabase.from('enderecos').delete().eq('id', id);
+    const { error } = await supabase.from('address').delete().eq('id', id);
 
     if (error) throw new Error(error.message);
   }

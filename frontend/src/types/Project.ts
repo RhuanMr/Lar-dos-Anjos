@@ -1,20 +1,12 @@
 export interface Project {
   id: string;
   nome: string;
-  descricao?: string;
   foto?: string;
-  endereco: string;
-  numero?: string;
-  complemento?: string;
-  bairro: string;
-  cidade: string;
-  uf: string;
-  cep: string;
+  endereco_id: string;
+  instagram?: string;
   telefone?: string;
   email?: string;
   ativo: boolean;
-  criado_em: string;
-  atualizado_em: string;
 }
 
 export interface ProjectContextType {

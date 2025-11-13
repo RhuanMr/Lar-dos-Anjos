@@ -2,6 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { Login } from '../pages/Login';
 import { Dashboard } from '../pages/Dashboard';
+import { EmployeesVolunteersList } from '../pages/EmployeesVolunteersList';
+import { EmployeeVolunteerNew } from '../pages/EmployeeVolunteerNew';
+import { ProjectNew } from '../pages/ProjectNew';
+import { ProjectsList } from '../pages/ProjectsList';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -48,6 +52,42 @@ export const AppRoutes = () => {
           }
         />
         
+        <Route
+          path="/employees-volunteers"
+          element={
+            <RequireAuth>
+              <EmployeesVolunteersList />
+            </RequireAuth>
+          }
+        />
+        
+        <Route
+          path="/employees-volunteers/new"
+          element={
+            <RequireAuth>
+              <EmployeeVolunteerNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/projects/new"
+          element={
+            <RequireAuth>
+              <ProjectNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/projects"
+          element={
+            <RequireAuth>
+              <ProjectsList />
+            </RequireAuth>
+          }
+        />
+
         {/* Rota padrão - redireciona baseado na autenticação */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         

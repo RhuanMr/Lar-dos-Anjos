@@ -37,7 +37,8 @@ export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, hasRole } = useAuth();
-  const isAdmin = hasRole('ADMIN') || hasRole('SUPERADMIN');
+  const isAdmin = hasRole('ADMINISTRADOR') || hasRole('SUPERADMIN');
+  const isSuperAdmin = hasRole('SUPERADMIN');
 
   const handleLogout = () => {
     logout();
@@ -227,6 +228,32 @@ export const Sidebar = () => {
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }}>
             <List>
+              {isSuperAdmin && (
+                <>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      selected={isActive('/projects')}
+                      onClick={() => navigate('/projects')}
+                    >
+                      <ListItemIcon>
+                        <ListIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Lista de Projetos" />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      selected={isActive('/projects/new')}
+                      onClick={() => navigate('/projects/new')}
+                    >
+                      <ListItemIcon>
+                        <Home />
+                      </ListItemIcon>
+                      <ListItemText primary="Cadastro de Projeto" />
+                    </ListItemButton>
+                  </ListItem>
+                </>
+              )}
               {isAdmin && (
                 <ListItem disablePadding>
                   <ListItemButton

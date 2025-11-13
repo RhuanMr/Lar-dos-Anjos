@@ -77,32 +77,35 @@ export interface UsuarioUpdate {
 export interface Projeto {
   id: string;
   nome: string;
-  descricao?: string;
   foto?: string;
-  endereco: string;
-  numero?: string;
-  complemento?: string;
-  bairro: string;
-  cidade: string;
-  uf: UF;
-  cep: string;
+  endereco_id: string;
+  instagram?: string;
   telefone?: string;
   email?: string;
   ativo: boolean;
-  criado_em: string;
-  atualizado_em: string;
 }
 
+// Interface para receber dados do frontend (inclui campos de endereço temporários)
 export interface ProjetoCreate {
   nome: string;
-  descricao?: string;
-  endereco: string;
-  numero?: string;
-  complemento?: string;
-  bairro: string;
-  cidade: string;
-  uf: UF;
-  cep: string;
+  descricao?: string; // Campo recebido do frontend mas não armazenado no banco
+  endereco: string; // Campo temporário para receber do frontend
+  numero?: string; // Campo temporário para receber do frontend
+  complemento?: string; // Campo temporário para receber do frontend
+  bairro: string; // Campo temporário para receber do frontend
+  cidade: string; // Campo temporário para receber do frontend
+  uf: UF; // Campo temporário para receber do frontend
+  cep: string; // Campo temporário para receber do frontend
+  instagram?: string;
+  telefone?: string;
+  email?: string;
+}
+
+// Interface para inserir no banco (apenas campos que existem na tabela projects)
+export interface ProjetoInsert {
+  nome: string;
+  endereco_id: string;
+  instagram?: string;
   telefone?: string;
   email?: string;
 }
