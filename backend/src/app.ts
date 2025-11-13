@@ -23,6 +23,7 @@ import casoMedicoRoutes from '@/routes/caso-medico-routes';
 import vacinaRoutes from '@/routes/vacina-routes';
 import adocaoRoutes from '@/routes/adocao-routes';
 import atualizacaoAdocaoRoutes from '@/routes/atualizacao-adocao-routes';
+import uploadRoutes from '@/routes/upload-routes';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -81,6 +82,7 @@ app.use('/api', casoMedicoRoutes);
 app.use('/api', vacinaRoutes);
 app.use('/api', adocaoRoutes);
 app.use('/api', atualizacaoAdocaoRoutes);
+app.use('/api', uploadRoutes);
 
 // Middleware de Tratamento de Erros
 app.use(errorHandler);
@@ -196,7 +198,12 @@ async function startServer() {
       console.log(`   GET    /api/atualizacoes-adocao/:id`);
       console.log(`   POST   /api/atualizacoes-adocao`);
       console.log(`   PATCH  /api/atualizacoes-adocao/:id`);
-      console.log(`   DELETE /api/atualizacoes-adocao/:id\n`);
+      console.log(`   DELETE /api/atualizacoes-adocao/:id`);
+      console.log(`\n📸 Endpoints de Upload:`);
+      console.log(`   POST   /api/upload/animal/:id`);
+      console.log(`   POST   /api/upload/usuario/:id`);
+      console.log(`   POST   /api/upload/projeto/:id`);
+      console.log(`   DELETE /api/upload/:bucket/:path\n`);
     });
   } catch (error) {
     console.error('❌ Erro ao iniciar servidor:', error);

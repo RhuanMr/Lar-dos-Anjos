@@ -1,17 +1,12 @@
 import {
   Role,
   Frequencia,
-  StatusAdocao,
   UF,
-  TipoAnimal,
-  StatusAnimal,
-  StatusAtualizacaoAdocao,
   TipoAjuda,
   TipoPagamento,
   Identificacao,
   Vacinado,
   StatusAdocaoEnum,
-  StatusAdocao,
 } from './enums';
 
 /* ========== RESPONSE PATTERNS ========== */
@@ -31,6 +26,8 @@ export interface Usuario {
   telefone?: string;
   data_nascimento?: string;
   genero?: 'M' | 'F' | 'Outro';
+  foto?: string;
+  instagram?: string;
   endereco?: string;
   numero?: string;
   complemento?: string;
@@ -64,6 +61,8 @@ export interface UsuarioCreate {
 export interface UsuarioUpdate {
   nome?: string;
   telefone?: string;
+  foto?: string;
+  instagram?: string;
   endereco?: string;
   numero?: string;
   complemento?: string;
@@ -79,6 +78,7 @@ export interface Projeto {
   id: string;
   nome: string;
   descricao?: string;
+  foto?: string;
   endereco: string;
   numero?: string;
   complemento?: string;

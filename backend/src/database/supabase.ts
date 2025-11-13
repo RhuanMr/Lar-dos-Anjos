@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+// Usar SERVICE_ROLE_KEY se disponível (para contornar RLS no backend)
+// Caso contrário, usar ANON_KEY (requer políticas RLS configuradas)
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(
-    'SUPABASE_URL e SUPABASE_ANON_KEY devem ser definidas em .env'
+    'SUPABASE_URL e SUPABASE_ANON_KEY (ou SUPABASE_SERVICE_ROLE_KEY) devem ser definidas em .env'
   );
 }
 

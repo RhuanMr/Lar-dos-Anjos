@@ -35,9 +35,10 @@ export class ProjetoRepository {
   }
 
   async update(id: string, projeto: Partial<Projeto>): Promise<Projeto> {
+    const updateData: any = { ...projeto };
     const { data, error } = await supabase
       .from('projetos')
-      .update(projeto)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
