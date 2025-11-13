@@ -3,6 +3,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { Login } from '../pages/Login';
 import { Dashboard } from '../pages/Dashboard';
 import { useAuth } from '../contexts/AuthContext';
+import { DashboardLayout } from '../layouts/DashboardLayout';
 
 // Componente para proteger rotas
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
@@ -27,7 +28,7 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return <DashboardLayout>{children}</DashboardLayout>;
 };
 
 export const AppRoutes = () => {

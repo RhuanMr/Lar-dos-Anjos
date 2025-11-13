@@ -6,13 +6,16 @@ import './index.css';
 import App from './App.tsx';
 import { theme } from './theme';
 import { AuthProvider } from './contexts/AuthContext';
+import { ProjectProvider } from './contexts/ProjectContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <App />
+        <ProjectProvider>
+          <App />
+        </ProjectProvider>
       </AuthProvider>
     </ThemeProvider>
   </StrictMode>

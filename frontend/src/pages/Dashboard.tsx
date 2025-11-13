@@ -1,8 +1,8 @@
-import { Box, Container, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
 
 export const Dashboard = () => {
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Box>
       <Typography variant="h4" component="h1" gutterBottom>
         Dashboard
       </Typography>
@@ -14,7 +14,7 @@ export const Dashboard = () => {
           Esta é uma página temporária. O dashboard completo será implementado em breve.
         </Typography>
       </Paper>
-    </Container>
+    </Box>
   );
 };
 
