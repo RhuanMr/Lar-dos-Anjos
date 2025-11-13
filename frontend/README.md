@@ -44,11 +44,14 @@ O tema customizado do Material UI está configurado com:
 
 ## 📝 Variáveis de Ambiente
 
-Crie um arquivo `.env` na raiz do projeto com:
+Crie um arquivo `.env` na raiz do projeto `frontend/` com:
 
 ```env
+# URL da API Backend
 VITE_API_URL=http://localhost:3000
 ```
+
+**📄 Documentação completa:** Consulte `ENV_EXAMPLE.md` para mais detalhes sobre as variáveis de ambiente.
 
 ## 🚦 Próximos Passos
 
