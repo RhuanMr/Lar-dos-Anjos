@@ -252,6 +252,17 @@ export const Sidebar = () => {
                       <ListItemText primary="Cadastro de Projeto" />
                     </ListItemButton>
                   </ListItem>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      selected={isActive('/projects/admin/new')}
+                      onClick={() => navigate('/projects/admin/new')}
+                    >
+                      <ListItemIcon>
+                        <PersonAdd />
+                      </ListItemIcon>
+                      <ListItemText primary="Cadastrar Administrador" />
+                    </ListItemButton>
+                  </ListItem>
                 </>
               )}
               {isAdmin && (

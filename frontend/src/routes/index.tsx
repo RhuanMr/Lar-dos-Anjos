@@ -6,6 +6,7 @@ import { EmployeesVolunteersList } from '../pages/EmployeesVolunteersList';
 import { EmployeeVolunteerNew } from '../pages/EmployeeVolunteerNew';
 import { ProjectNew } from '../pages/ProjectNew';
 import { ProjectsList } from '../pages/ProjectsList';
+import { AdminNew } from '../pages/AdminNew';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -84,6 +85,24 @@ export const AppRoutes = () => {
           element={
             <RequireAuth>
               <ProjectsList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/projects/:projectId/admin/new"
+          element={
+            <RequireAuth>
+              <AdminNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/projects/admin/new"
+          element={
+            <RequireAuth>
+              <AdminNew />
             </RequireAuth>
           }
         />

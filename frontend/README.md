@@ -47,8 +47,10 @@ O tema customizado do Material UI está configurado com:
 Crie um arquivo `.env` na raiz do projeto `frontend/` com:
 
 ```env
-# URL da API Backend
+# URL da API Backend (incluirá /api automaticamente se não estiver presente)
 VITE_API_URL=http://localhost:3000
+# ou
+VITE_API_URL=http://localhost:3000/api
 ```
 
 **📄 Documentação completa:** Consulte `ENV_EXAMPLE.md` para mais detalhes sobre as variáveis de ambiente.

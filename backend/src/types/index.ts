@@ -239,6 +239,23 @@ export interface FuncionarioUpdate {
   observacao?: string;
 }
 
+/* ========== ADMINISTRADORES ========== */
+export interface Administrador {
+  id_usuario: string;
+  id_projeto: string;
+  observacao?: string;
+}
+
+export interface AdministradorCreate {
+  id_usuario: string;
+  id_projeto: string;
+  observacao?: string;
+}
+
+export interface AdministradorUpdate {
+  observacao?: string;
+}
+
 /* ========== DOADORES ========== */
 export interface Doador {
   id_usuario: string;

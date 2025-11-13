@@ -27,6 +27,7 @@ import {
   Edit,
   Delete,
   Visibility,
+  PersonAdd,
 } from '@mui/icons-material';
 import { projectService } from '../services/project.service';
 import { useAuth } from '../contexts/AuthContext';
@@ -225,19 +226,27 @@ export const ProjectsList = () => {
                             Ver Detalhes
                           </MenuItem>
                           {isSuperAdmin && (
-                            <>
-                              <MenuItem onClick={() => handleEdit(project.id)}>
-                                <Edit sx={{ mr: 1 }} fontSize="small" />
-                                Editar
-                              </MenuItem>
-                              <MenuItem
-                                onClick={() => handleDelete(project.id)}
-                                sx={{ color: 'error.main' }}
-                              >
-                                <Delete sx={{ mr: 1 }} fontSize="small" />
-                                Excluir
-                              </MenuItem>
-                            </>
+                            <MenuItem onClick={() => handleEdit(project.id)}>
+                              <Edit sx={{ mr: 1 }} fontSize="small" />
+                              Editar
+                            </MenuItem>
+                          )}
+                          {isSuperAdmin && (
+                            <MenuItem
+                              onClick={() => navigate(`/projects/${project.id}/admin/new`)}
+                            >
+                              <PersonAdd sx={{ mr: 1 }} fontSize="small" />
+                              Adicionar Administrador
+                            </MenuItem>
+                          )}
+                          {isSuperAdmin && (
+                            <MenuItem
+                              onClick={() => handleDelete(project.id)}
+                              sx={{ color: 'error.main' }}
+                            >
+                              <Delete sx={{ mr: 1 }} fontSize="small" />
+                              Excluir
+                            </MenuItem>
                           )}
                         </Menu>
                       </TableCell>

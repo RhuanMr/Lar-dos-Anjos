@@ -3,34 +3,34 @@ import { Volunteer, VolunteerCreate, VolunteerUpdate } from '../types';
 
 export const volunteerService = {
   getAll: async () => {
-    const response = await api.get<{ success: boolean; data: Volunteer[] }>('/api/voluntarios');
+    const response = await api.get<{ success: boolean; data: Volunteer[] }>('/voluntarios');
     return response.data;
   },
 
   getByProject: async (projetoId: string) => {
     const response = await api.get<{ success: boolean; data: Volunteer[] }>(
-      `/api/voluntarios/projeto/${projetoId}`
+      `/voluntarios/projeto/${projetoId}`
     );
     return response.data;
   },
 
   getByUser: async (usuarioId: string) => {
     const response = await api.get<{ success: boolean; data: Volunteer[] }>(
-      `/api/voluntarios/usuario/${usuarioId}`
+      `/voluntarios/usuario/${usuarioId}`
     );
     return response.data;
   },
 
   getById: async (usuarioId: string, projetoId: string) => {
     const response = await api.get<{ success: boolean; data: Volunteer }>(
-      `/api/voluntarios/${usuarioId}/${projetoId}`
+      `/voluntarios/${usuarioId}/${projetoId}`
     );
     return response.data;
   },
 
   create: async (data: VolunteerCreate) => {
     const response = await api.post<{ success: boolean; data: Volunteer; message: string }>(
-      '/api/voluntarios',
+      '/voluntarios',
       data
     );
     return response.data;
@@ -38,7 +38,7 @@ export const volunteerService = {
 
   update: async (usuarioId: string, projetoId: string, data: VolunteerUpdate) => {
     const response = await api.patch<{ success: boolean; data: Volunteer; message: string }>(
-      `/api/voluntarios/${usuarioId}/${projetoId}`,
+      `/voluntarios/${usuarioId}/${projetoId}`,
       data
     );
     return response.data;
@@ -46,7 +46,7 @@ export const volunteerService = {
 
   delete: async (usuarioId: string, projetoId: string) => {
     const response = await api.delete<{ success: boolean; message: string }>(
-      `/api/voluntarios/${usuarioId}/${projetoId}`
+      `/voluntarios/${usuarioId}/${projetoId}`
     );
     return response.data;
   },

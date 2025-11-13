@@ -14,11 +14,15 @@ export class UsuarioController {
       };
       res.json(response);
     } catch (error) {
+      console.error('Erro ao listar usuários:', error);
       const message =
         error instanceof Error ? error.message : 'Erro ao listar usuários';
+      const errorDetails = error instanceof Error ? error.stack : undefined;
+      
       res.status(500).json({
         success: false,
         error: message,
+        ...(process.env.NODE_ENV === 'development' && { details: errorDetails }),
       });
     }
   }

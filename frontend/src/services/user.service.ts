@@ -20,18 +20,18 @@ export interface UserCreate {
 
 export const userService = {
   getAll: async () => {
-    const response = await api.get<{ success: boolean; data: User[] }>('/api/usuarios');
+    const response = await api.get<{ success: boolean; data: User[] }>('/usuarios');
     return response.data;
   },
 
   getById: async (id: string) => {
-    const response = await api.get<{ success: boolean; data: User }>(`/api/usuarios/${id}`);
+    const response = await api.get<{ success: boolean; data: User }>(`/usuarios/${id}`);
     return response.data;
   },
 
   create: async (data: UserCreate) => {
     const response = await api.post<{ success: boolean; data: User; message: string }>(
-      '/api/usuarios',
+      '/usuarios',
       data
     );
     return response.data;

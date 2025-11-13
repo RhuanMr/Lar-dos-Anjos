@@ -17,18 +17,18 @@ export interface ProjectCreate {
 
 export const projectService = {
   getAll: async () => {
-    const response = await api.get<{ success: boolean; data: Project[] }>('/api/projetos');
+    const response = await api.get<{ success: boolean; data: Project[] }>('/projetos');
     return response.data;
   },
 
   getById: async (id: string) => {
-    const response = await api.get<{ success: boolean; data: Project }>(`/api/projetos/${id}`);
+    const response = await api.get<{ success: boolean; data: Project }>(`/projetos/${id}`);
     return response.data;
   },
 
   create: async (data: ProjectCreate) => {
     const response = await api.post<{ success: boolean; data: Project; message: string }>(
-      '/api/projetos',
+      '/projetos',
       data
     );
     return response.data;
@@ -36,14 +36,14 @@ export const projectService = {
 
   update: async (id: string, data: Partial<ProjectCreate>) => {
     const response = await api.patch<{ success: boolean; data: Project; message: string }>(
-      `/api/projetos/${id}`,
+      `/projetos/${id}`,
       data
     );
     return response.data;
   },
 
   delete: async (id: string) => {
-    const response = await api.delete<{ success: boolean; message: string }>(`/api/projetos/${id}`);
+    const response = await api.delete<{ success: boolean; message: string }>(`/projetos/${id}`);
     return response.data;
   },
 };
