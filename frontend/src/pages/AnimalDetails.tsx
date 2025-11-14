@@ -15,11 +15,26 @@ import {
   Chip,
   Card,
   CardContent,
+  FormControlLabel,
+  Switch,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
-import { ArrowBack, Save, Edit, Pets } from '@mui/icons-material';
+import { ArrowBack, Save, Edit, Pets, Delete, Done } from '@mui/icons-material';
 import { animalService } from '../services/animal.service';
+import { vaccineService } from '../services/vaccine.service';
+import { medicalCaseService } from '../services/medicalCase.service';
 import { useAuth } from '../contexts/AuthContext';
-import { Animal, AnimalUpdate, Identificacao, Vacinado } from '../types';
+import {
+  Animal,
+  AnimalUpdate,
+  Identificacao,
+  Vacinado,
+  Vaccine,
+  MedicalCase,
+} from '../types';
+
+const getToday = () => new Date().toISOString().split('T')[0];
 
 export const AnimalDetails = () => {
   const navigate = useNavigate();
@@ -38,6 +53,20 @@ export const AnimalDetails = () => {
   const [identificacao, setIdentificacao] = useState<Identificacao | ''>('');
   const [vacinado, setVacinado] = useState<Vacinado | ''>('');
   const [dtCastracao, setDtCastracao] = useState('');
+  const [vaccines, setVaccines] = useState<Vaccine[]>([]);
+  const [medicalCases, setMedicalCases] = useState<MedicalCase[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [vaccineForm, setVaccineForm] = useState({
+    nome: '',
+    data_aplicacao: getToday(),
+  });
+  const [medicalCaseForm, setMedicalCaseForm] = useState({
+    descricao: '',
+    observacao: '',
+    finalizado: false,
+  });
+  const [addingVaccine, setAddingVaccine] = useState(false);
+  const [addingMedicalCase, setAddingMedicalCase] = useState(false);
 
   const isAdmin = hasRole('ADMINISTRADOR') || hasRole('SUPERADMIN');
   const isEmployee = hasRole('FUNCIONARIO');
@@ -48,6 +77,22 @@ export const AnimalDetails = () => {
       loadAnimal();
     }
   }, [id]);
+
+  const loadHistory = async (animalId: string) => {
+    try {
+      setHistoryLoading(true);
+      const [vaccinesData, casesData] = await Promise.all([
+        vaccineService.getByAnimal(animalId),
+        medicalCaseService.getByAnimal(animalId),
+      ]);
+      setVaccines(vaccinesData);
+      setMedicalCases(casesData);
+    } catch (err) {
+      console.error('Erro ao carregar histórico do animal:', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const loadAnimal = async () => {
     if (!id) return;
@@ -64,6 +109,7 @@ export const AnimalDetails = () => {
       setIdentificacao(data.identificacao || '');
       setVacinado(data.vacinado || '');
       setDtCastracao(data.dt_castracao || '');
+      await loadHistory(id);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Erro ao carregar animal');
     } finally {
@@ -128,8 +174,129 @@ export const AnimalDetails = () => {
     return date.toLocaleDateString('pt-BR');
   };
 
-  // Obter data de hoje no formato YYYY-MM-DD
-  const today = new Date().toISOString().split('T')[0];
+  const today = getToday();
+
+  const handleAddVaccine = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!id) return;
+
+    if (!vaccineForm.nome.trim()) {
+      setError('Nome da vacina é obrigatório');
+      return;
+    }
+
+    if (!vaccineForm.data_aplicacao) {
+      setError('Data de aplicação é obrigatória');
+      return;
+    }
+
+    try {
+      setAddingVaccine(true);
+      await vaccineService.create({
+        id_animal: id,
+        nome: vaccineForm.nome.trim(),
+        data_aplicacao: vaccineForm.data_aplicacao,
+      });
+      setVaccineForm({ nome: '', data_aplicacao: today });
+      await loadHistory(id);
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error ||
+        err.message ||
+        'Erro ao cadastrar vacina';
+      setError(message);
+    } finally {
+      setAddingVaccine(false);
+    }
+  };
+
+  const handleDeleteVaccine = async (vaccineId: string) => {
+    if (!id) return;
+    const confirmed = window.confirm(
+      'Tem certeza que deseja excluir esta vacina?'
+    );
+    if (!confirmed) return;
+    try {
+      await vaccineService.delete(vaccineId);
+      await loadHistory(id);
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error ||
+        err.message ||
+        'Erro ao excluir vacina';
+      setError(message);
+    }
+  };
+
+  const handleAddMedicalCase = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!id) return;
+
+    if (!medicalCaseForm.descricao.trim()) {
+      setError('Descrição do caso é obrigatória');
+      return;
+    }
+
+    try {
+      setAddingMedicalCase(true);
+      await medicalCaseService.create({
+        id_animal: id,
+        descricao: medicalCaseForm.descricao.trim(),
+        observacao: medicalCaseForm.observacao.trim()
+          ? medicalCaseForm.observacao.trim()
+          : undefined,
+        finalizado: medicalCaseForm.finalizado,
+      });
+      setMedicalCaseForm({
+        descricao: '',
+        observacao: '',
+        finalizado: false,
+      });
+      await loadHistory(id);
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error ||
+        err.message ||
+        'Erro ao cadastrar caso médico';
+      setError(message);
+    } finally {
+      setAddingMedicalCase(false);
+    }
+  };
+
+  const handleToggleMedicalCase = async (medicalCase: MedicalCase) => {
+    if (!id) return;
+    try {
+      await medicalCaseService.update(medicalCase.id, {
+        finalizado: !medicalCase.finalizado,
+      });
+      await loadHistory(id);
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error ||
+        err.message ||
+        'Erro ao atualizar caso médico';
+      setError(message);
+    }
+  };
+
+  const handleDeleteMedicalCase = async (medicalCaseId: string) => {
+    if (!id) return;
+    const confirmed = window.confirm(
+      'Tem certeza que deseja excluir este caso médico?'
+    );
+    if (!confirmed) return;
+    try {
+      await medicalCaseService.delete(medicalCaseId);
+      await loadHistory(id);
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error ||
+        err.message ||
+        'Erro ao excluir caso médico';
+      setError(message);
+    }
+  };
 
   if (loading) {
     return (
@@ -360,16 +527,258 @@ export const AnimalDetails = () => {
           </Paper>
         </Grid>
 
-        {/* Seções futuras para Vacinas e Casos Médicos */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Histórico
-            </Typography>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '100%' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6">Vacinas</Typography>
+              {historyLoading && <CircularProgress size={20} />}
+            </Box>
+
+            {canEdit && (
+              <Box
+                component="form"
+                onSubmit={handleAddVaccine}
+                sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}
+              >
+                <TextField
+                  label="Nome da vacina"
+                  value={vaccineForm.nome}
+                  onChange={(e) =>
+                    setVaccineForm((prev) => ({ ...prev, nome: e.target.value }))
+                  }
+                  disabled={addingVaccine}
+                  required
+                />
+                <TextField
+                  label="Data de aplicação"
+                  type="date"
+                  value={vaccineForm.data_aplicacao}
+                  onChange={(e) =>
+                    setVaccineForm((prev) => ({
+                      ...prev,
+                      data_aplicacao: e.target.value,
+                    }))
+                  }
+                  disabled={addingVaccine}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ max: today }}
+                  required
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={addingVaccine}
+                >
+                  {addingVaccine ? 'Registrando...' : 'Registrar Vacina'}
+                </Button>
+              </Box>
+            )}
+
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="body2" color="text.secondary">
-              Funcionalidades de vacinas e casos médicos serão implementadas em breve.
-            </Typography>
+
+            {vaccines.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                Nenhuma vacina registrada para este animal.
+              </Typography>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {vaccines.map((vacina) => (
+                  <Box
+                    key={vacina.id}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      p: 2,
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle1">{vacina.nome}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Aplicada em {formatDate(vacina.data_aplicacao)}
+                      </Typography>
+                    </Box>
+                    {canEdit && (
+                      <Tooltip title="Excluir vacina">
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDeleteVaccine(vacina.id)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, height: '100%' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6">Casos Médicos</Typography>
+              {historyLoading && <CircularProgress size={20} />}
+            </Box>
+
+            {canEdit && (
+              <Box
+                component="form"
+                onSubmit={handleAddMedicalCase}
+                sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}
+              >
+                <TextField
+                  label="Descrição do caso"
+                  value={medicalCaseForm.descricao}
+                  onChange={(e) =>
+                    setMedicalCaseForm((prev) => ({
+                      ...prev,
+                      descricao: e.target.value,
+                    }))
+                  }
+                  required
+                  multiline
+                  minRows={2}
+                  disabled={addingMedicalCase}
+                />
+                <TextField
+                  label="Observações"
+                  value={medicalCaseForm.observacao}
+                  onChange={(e) =>
+                    setMedicalCaseForm((prev) => ({
+                      ...prev,
+                      observacao: e.target.value,
+                    }))
+                  }
+                  multiline
+                  minRows={2}
+                  disabled={addingMedicalCase}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={medicalCaseForm.finalizado}
+                      onChange={(e) =>
+                        setMedicalCaseForm((prev) => ({
+                          ...prev,
+                          finalizado: e.target.checked,
+                        }))
+                      }
+                      disabled={addingMedicalCase}
+                    />
+                  }
+                  label="Caso finalizado"
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={addingMedicalCase}
+                >
+                  {addingMedicalCase
+                    ? 'Registrando...'
+                    : 'Registrar Caso Médico'}
+                </Button>
+              </Box>
+            )}
+
+            <Divider sx={{ mb: 2 }} />
+
+            {medicalCases.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                Nenhum caso médico registrado para este animal.
+              </Typography>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {medicalCases.map((caso) => (
+                  <Box
+                    key={caso.id}
+                    sx={{
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      p: 2,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Typography variant="subtitle1">
+                        {caso.descricao || 'Sem descrição'}
+                      </Typography>
+                      <Chip
+                        label={caso.finalizado ? 'Finalizado' : 'Em andamento'}
+                        color={caso.finalizado ? 'success' : 'warning'}
+                        size="small"
+                      />
+                    </Box>
+                    {caso.observacao && (
+                      <Typography variant="body2">
+                        {caso.observacao}
+                      </Typography>
+                    )}
+
+                    {canEdit && (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'flex-end',
+                          gap: 1,
+                          mt: 1,
+                        }}
+                      >
+                        <Tooltip
+                          title={
+                            caso.finalizado
+                              ? 'Marcar como em andamento'
+                              : 'Marcar como finalizado'
+                          }
+                        >
+                          <IconButton
+                            color={caso.finalizado ? 'warning' : 'success'}
+                            onClick={() => handleToggleMedicalCase(caso)}
+                          >
+                            <Done />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Excluir caso">
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDeleteMedicalCase(caso.id)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Paper>
         </Grid>
       </Grid>
