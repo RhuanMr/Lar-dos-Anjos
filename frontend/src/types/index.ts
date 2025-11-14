@@ -9,4 +9,6 @@ export * from './MedicalCase';
 export * from './Vaccine';
 export * from './Adoption';
 export * from './Adopter';
+export * from './Donation';
+export * from './Donor';
 

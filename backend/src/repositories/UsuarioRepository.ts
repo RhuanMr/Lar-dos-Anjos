@@ -1,5 +1,5 @@
 import { supabase } from '@/database/supabase';
-import { Usuario, UsuarioCreate, UsuarioUpdate } from '@/types/index';
+import { Usuario, UsuarioUpdate } from '@/types/index';
 
 export class UsuarioRepository {
   async findAll(): Promise<Usuario[]> {
@@ -87,10 +87,28 @@ export class UsuarioRepository {
     return data || null;
   }
 
-  async create(usuario: UsuarioCreate): Promise<Usuario> {
+  async create(usuario: any): Promise<Usuario> {
+    // Filtrar campos de endereço que não existem na tabela users
+    // mas manter endereco_id se existir
+    const camposValidos: any = {};
+    
+    // Campos permitidos na tabela users
+    const camposPermitidos = [
+      'id', 'nome', 'email', 'cpf', 'telefone', 
+      'foto', 'instagram', 'endereco_id', 'roles', 'ativo',
+      'senha_hash', 'criado_em', 'atualizado_em'
+    ];
+    
+    // Copiar apenas campos permitidos
+    for (const campo of camposPermitidos) {
+      if (campo in usuario && usuario[campo] !== undefined) {
+        camposValidos[campo] = usuario[campo];
+      }
+    }
+    
     const { data, error } = await supabase
       .from('users')
-      .insert([usuario])
+      .insert([camposValidos])
       .select()
       .single();
 
@@ -98,10 +116,28 @@ export class UsuarioRepository {
     return data;
   }
 
-  async update(id: string, usuario: UsuarioUpdate): Promise<Usuario> {
+  async update(id: string, usuario: UsuarioUpdate | any): Promise<Usuario> {
+    // Filtrar campos de endereço que não existem na tabela users
+    // mas manter endereco_id se existir
+    const camposValidos: any = {};
+    
+    // Campos permitidos na tabela users para atualização
+    const camposPermitidos = [
+      'nome', 'email', 'cpf', 'telefone', 
+      'foto', 'instagram', 'endereco_id', 'roles', 'ativo',
+      'senha_hash', 'atualizado_em'
+    ];
+    
+    // Copiar apenas campos permitidos
+    for (const campo of camposPermitidos) {
+      if (campo in usuario && usuario[campo] !== undefined) {
+        camposValidos[campo] = usuario[campo];
+      }
+    }
+    
     const { data, error } = await supabase
       .from('users')
-      .update(usuario)
+      .update(camposValidos)
       .eq('id', id)
       .select()
       .single();

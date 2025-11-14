@@ -28,6 +28,12 @@ export interface Usuario {
   genero?: 'M' | 'F' | 'Outro';
   foto?: string;
   instagram?: string;
+  endereco_id?: string;
+  roles: Role[];
+  ativo: boolean;
+  criado_em: string;
+  atualizado_em: string;
+  // Campos de endereço (apenas para compatibilidade com frontend, não são salvos diretamente)
   endereco?: string;
   numero?: string;
   complemento?: string;
@@ -35,10 +41,6 @@ export interface Usuario {
   cidade?: string;
   uf?: UF;
   cep?: string;
-  roles: Role[];
-  ativo: boolean;
-  criado_em: string;
-  atualizado_em: string;
 }
 
 export interface UsuarioCreate {

@@ -28,18 +28,24 @@ import {
   Edit,
   Delete,
   Visibility,
-  Pets,
+  Person,
 } from '@mui/icons-material';
-import { animalService } from '../services/animal.service';
+import { donorService } from '../services/donor.service';
+import { userService } from '../services/user.service';
 import { useProject } from '../contexts/ProjectContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Animal } from '../types/Animal';
+import { Donor } from '../types/Donor';
+import { User } from '../types/User';
 
-export const AnimalsList = () => {
+interface DonorWithUser extends Donor {
+  usuario?: User;
+}
+
+export const DonorsList = () => {
   const navigate = useNavigate();
   const { selectedProject } = useProject();
   const { hasRole } = useAuth();
-  const [animals, setAnimals] = useState<Animal[]>([]);
+  const [donors, setDonors] = useState<DonorWithUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,59 +63,71 @@ export const AnimalsList = () => {
       setLoading(true);
       setError(null);
 
-      let data: Animal[];
+      let donorsData: Donor[];
       if (selectedProject) {
-        data = await animalService.getByProject(selectedProject.id);
+        donorsData = await donorService.getByProject(selectedProject.id);
       } else {
-        data = await animalService.getAll();
+        donorsData = await donorService.getAll();
       }
-      setAnimals(data);
+
+      // Buscar dados dos usuários
+      const usersResponse = await userService.getAll();
+      const allUsers = usersResponse.data || [];
+
+      const donorsWithUsers: DonorWithUser[] = donorsData.map((donor) => ({
+        ...donor,
+        usuario: allUsers.find((u) => u.id === donor.id_usuario),
+      }));
+
+      setDonors(donorsWithUsers);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro ao carregar animais');
+      setError(err.response?.data?.error || 'Erro ao carregar doadores');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMenuOpen = (id: string, event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl({ ...anchorEl, [id]: event.currentTarget });
+  const handleMenuOpen = (key: string, event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl({ ...anchorEl, [key]: event.currentTarget });
   };
 
-  const handleMenuClose = (id: string) => {
-    setAnchorEl({ ...anchorEl, [id]: null });
+  const handleMenuClose = (key: string) => {
+    setAnchorEl({ ...anchorEl, [key]: null });
   };
 
-  const handleView = (id: string) => {
-    navigate(`/animals/${id}`);
-    handleMenuClose(id);
+  const handleView = (donor: DonorWithUser) => {
+    navigate(`/donors/${donor.id_usuario}/${donor.id_projeto}`);
+    handleMenuClose(`${donor.id_usuario}-${donor.id_projeto}`);
   };
 
-  const handleEdit = (id: string) => {
-    navigate(`/animals/${id}/edit`);
-    handleMenuClose(id);
+  const handleEdit = (donor: DonorWithUser) => {
+    navigate(`/donors/${donor.id_usuario}/${donor.id_projeto}/edit`);
+    handleMenuClose(`${donor.id_usuario}-${donor.id_projeto}`);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Tem certeza que deseja remover este animal?')) {
-      handleMenuClose(id);
+  const handleDelete = async (donor: DonorWithUser) => {
+    if (!window.confirm('Tem certeza que deseja remover este doador?')) {
+      handleMenuClose(`${donor.id_usuario}-${donor.id_projeto}`);
       return;
     }
 
     try {
-      await animalService.delete(id);
+      await donorService.delete(donor.id_usuario, donor.id_projeto);
       loadData();
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Erro ao remover animal');
+      alert(err.response?.data?.error || 'Erro ao remover doador');
     }
-    handleMenuClose(id);
+    handleMenuClose(`${donor.id_usuario}-${donor.id_projeto}`);
   };
 
-  const filteredAnimals = animals.filter((animal) => {
+  const filteredDonors = donors.filter((donor) => {
     const searchLower = searchTerm.toLowerCase();
+    const usuario = donor.usuario;
     return (
-      animal.nome.toLowerCase().includes(searchLower) ||
-      (animal.origem && animal.origem.toLowerCase().includes(searchLower)) ||
-      animal.id.toLowerCase().includes(searchLower)
+      (usuario?.nome && usuario.nome.toLowerCase().includes(searchLower)) ||
+      (usuario?.email && usuario.email.toLowerCase().includes(searchLower)) ||
+      (usuario?.cpf && usuario.cpf.includes(searchLower)) ||
+      (donor.observacao && donor.observacao.toLowerCase().includes(searchLower))
     );
   });
 
@@ -131,15 +149,15 @@ export const AnimalsList = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" component="h1">
-          Animais
+          Doadores
         </Typography>
         {(isAdmin || isEmployee) && (
           <Button
             variant="contained"
             startIcon={<Add />}
-            onClick={() => navigate('/animals/new')}
+            onClick={() => navigate('/donors/new')}
           >
-            Novo Animal
+            Novo Doador
           </Button>
         )}
       </Box>
@@ -154,7 +172,7 @@ export const AnimalsList = () => {
         <Box sx={{ p: 2 }}>
           <TextField
             fullWidth
-            placeholder="Buscar animais..."
+            placeholder="Buscar doadores..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -173,69 +191,67 @@ export const AnimalsList = () => {
               <TableRow>
                 <TableCell>Foto</TableCell>
                 <TableCell>Nome</TableCell>
-                <TableCell>Origem</TableCell>
-                <TableCell>Entrada</TableCell>
-                <TableCell>Vacinado</TableCell>
-                <TableCell>Castrado</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Frequência</TableCell>
+                <TableCell>Última Doação</TableCell>
+                <TableCell>Próxima Doação</TableCell>
+                <TableCell>Observação</TableCell>
                 <TableCell align="right">Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredAnimals.length === 0 ? (
+              {filteredDonors.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={8} align="center">
                     <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
-                      Nenhum animal encontrado
+                      Nenhum doador encontrado
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredAnimals.map((animal) => (
-                  <TableRow key={animal.id} hover>
+                filteredDonors.map((donor) => (
+                  <TableRow key={`${donor.id_usuario}-${donor.id_projeto}`} hover>
                     <TableCell>
-                      <Avatar src={animal.foto} sx={{ width: 40, height: 40 }}>
-                        <Pets />
+                      <Avatar src={donor.usuario?.foto} sx={{ width: 40, height: 40 }}>
+                        {donor.usuario?.nome?.charAt(0).toUpperCase() || <Person />}
                       </Avatar>
                     </TableCell>
-                    <TableCell>{animal.nome}</TableCell>
-                    <TableCell>{animal.origem || '-'}</TableCell>
-                    <TableCell>{formatDate(animal.entrada)}</TableCell>
+                    <TableCell>{donor.usuario?.nome || '-'}</TableCell>
+                    <TableCell>{donor.usuario?.email || '-'}</TableCell>
                     <TableCell>
-                      {animal.vacinado ? (
-                        <Chip
-                          label={animal.vacinado}
-                          color={animal.vacinado === 'Sim' ? 'success' : animal.vacinado === 'Parcial' ? 'warning' : 'default'}
-                          size="small"
-                        />
+                      {donor.frequencia ? (
+                        <Chip label={donor.frequencia} size="small" />
                       ) : (
                         '-'
                       )}
                     </TableCell>
-                    <TableCell>{animal.dt_castracao ? formatDate(animal.dt_castracao) : '-'}</TableCell>
+                    <TableCell>{formatDate(donor.lt_data)}</TableCell>
+                    <TableCell>{formatDate(donor.px_data)}</TableCell>
+                    <TableCell>{donor.observacao || '-'}</TableCell>
                     <TableCell align="right">
                       <IconButton
-                        onClick={(e) => handleMenuOpen(animal.id, e)}
+                        onClick={(e) => handleMenuOpen(`${donor.id_usuario}-${donor.id_projeto}`, e)}
                         size="small"
                       >
                         <MoreVert />
                       </IconButton>
                       <Menu
-                        anchorEl={anchorEl[animal.id]}
-                        open={Boolean(anchorEl[animal.id])}
-                        onClose={() => handleMenuClose(animal.id)}
+                        anchorEl={anchorEl[`${donor.id_usuario}-${donor.id_projeto}`]}
+                        open={Boolean(anchorEl[`${donor.id_usuario}-${donor.id_projeto}`])}
+                        onClose={() => handleMenuClose(`${donor.id_usuario}-${donor.id_projeto}`)}
                       >
-                        <MenuItem onClick={() => handleView(animal.id)}>
+                        <MenuItem onClick={() => handleView(donor)}>
                           <Visibility sx={{ mr: 1 }} fontSize="small" />
                           Ver Detalhes
                         </MenuItem>
                         {(isAdmin || isEmployee) && (
                           <>
-                            <MenuItem onClick={() => handleEdit(animal.id)}>
+                            <MenuItem onClick={() => handleEdit(donor)}>
                               <Edit sx={{ mr: 1 }} fontSize="small" />
                               Editar
                             </MenuItem>
                             {isAdmin && (
-                              <MenuItem onClick={() => handleDelete(animal.id)}>
+                              <MenuItem onClick={() => handleDelete(donor)}>
                                 <Delete sx={{ mr: 1 }} fontSize="small" />
                                 Excluir
                               </MenuItem>
@@ -254,3 +270,4 @@ export const AnimalsList = () => {
     </Box>
   );
 };
+

@@ -2,34 +2,64 @@ import { supabase } from '@/database/supabase';
 import { Voluntario, VoluntarioCreate, VoluntarioUpdate } from '@/types/index';
 
 export class VoluntarioRepository {
+  // ⚠️ IMPORTANTE: 
+  // - O nome da tabela no banco de dados é 'volunteers' (inglês), não 'voluntarios' (português)
+  // - Os nomes das colunas no banco são: id_user, id_project (inglês)
+  // - A aplicação usa: id_usuario, id_projeto (português)
+  private readonly TABLE_NAME = 'volunteers';
+
+  // Mapear dados do banco para a aplicação
+  private mapFromDatabase(data: any): Voluntario {
+    return {
+      id_usuario: data.id_user,
+      id_projeto: data.id_project,
+      servico: data.servico,
+      frequencia: data.frequencia,
+      lt_data: data.lt_data,
+      px_data: data.px_data,
+    };
+  }
+
+  // Mapear dados da aplicação para o banco
+  private mapToDatabase(data: VoluntarioCreate | VoluntarioUpdate): any {
+    const mapped: any = {};
+    if ('id_usuario' in data) mapped.id_user = data.id_usuario;
+    if ('id_projeto' in data) mapped.id_project = data.id_projeto;
+    if ('servico' in data && data.servico !== undefined) mapped.servico = data.servico;
+    if ('frequencia' in data && data.frequencia !== undefined) mapped.frequencia = data.frequencia;
+    if ('lt_data' in data && data.lt_data !== undefined) mapped.lt_data = data.lt_data;
+    if ('px_data' in data && data.px_data !== undefined) mapped.px_data = data.px_data;
+    return mapped;
+  }
+
   async findAll(): Promise<Voluntario[]> {
     const { data, error } = await supabase
-      .from('voluntarios')
+      .from(this.TABLE_NAME)
       .select('*')
-      .order('id_usuario', { ascending: true });
+      .order('id_user', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return data || [];
+    return (data || []).map(this.mapFromDatabase);
   }
 
   async findByProjeto(projetoId: string): Promise<Voluntario[]> {
     const { data, error } = await supabase
-      .from('voluntarios')
+      .from(this.TABLE_NAME)
       .select('*')
-      .eq('id_projeto', projetoId);
+      .eq('id_project', projetoId);
 
     if (error) throw new Error(error.message);
-    return data || [];
+    return (data || []).map(this.mapFromDatabase);
   }
 
   async findByUsuario(usuarioId: string): Promise<Voluntario[]> {
     const { data, error } = await supabase
-      .from('voluntarios')
+      .from(this.TABLE_NAME)
       .select('*')
-      .eq('id_usuario', usuarioId);
+      .eq('id_user', usuarioId);
 
     if (error) throw new Error(error.message);
-    return data || [];
+    return (data || []).map(this.mapFromDatabase);
   }
 
   async findByUsuarioAndProjeto(
@@ -37,14 +67,14 @@ export class VoluntarioRepository {
     projetoId: string
   ): Promise<Voluntario | null> {
     const { data, error } = await supabase
-      .from('voluntarios')
+      .from(this.TABLE_NAME)
       .select('*')
-      .eq('id_usuario', usuarioId)
-      .eq('id_projeto', projetoId)
+      .eq('id_user', usuarioId)
+      .eq('id_project', projetoId)
       .single();
 
     if (error && error.code !== 'PGRST116') throw new Error(error.message);
-    return data || null;
+    return data ? this.mapFromDatabase(data) : null;
   }
 
   async create(voluntario: VoluntarioCreate): Promise<Voluntario> {
@@ -59,14 +89,15 @@ export class VoluntarioRepository {
       );
     }
 
+    const mappedData = this.mapToDatabase(voluntario);
     const { data, error } = await supabase
-      .from('voluntarios')
-      .insert([voluntario])
+      .from(this.TABLE_NAME)
+      .insert([mappedData])
       .select()
       .single();
 
     if (error) throw new Error(error.message);
-    return data;
+    return this.mapFromDatabase(data);
   }
 
   async update(
@@ -74,24 +105,25 @@ export class VoluntarioRepository {
     projetoId: string,
     voluntario: VoluntarioUpdate
   ): Promise<Voluntario> {
+    const mappedData = this.mapToDatabase(voluntario);
     const { data, error } = await supabase
-      .from('voluntarios')
-      .update(voluntario)
-      .eq('id_usuario', usuarioId)
-      .eq('id_projeto', projetoId)
+      .from(this.TABLE_NAME)
+      .update(mappedData)
+      .eq('id_user', usuarioId)
+      .eq('id_project', projetoId)
       .select()
       .single();
 
     if (error) throw new Error(error.message);
-    return data;
+    return this.mapFromDatabase(data);
   }
 
   async delete(usuarioId: string, projetoId: string): Promise<void> {
     const { error } = await supabase
-      .from('voluntarios')
+      .from(this.TABLE_NAME)
       .delete()
-      .eq('id_usuario', usuarioId)
-      .eq('id_projeto', projetoId);
+      .eq('id_user', usuarioId)
+      .eq('id_project', projetoId);
 
     if (error) throw new Error(error.message);
   }

@@ -14,12 +14,16 @@ import { SetPassword } from '../pages/SetPassword';
 import { ProjectDetails } from '../pages/ProjectDetails';
 import { UserDetails } from '../pages/UserDetails';
 import { AdopterAutoRegister } from '../pages/AdopterAutoRegister';
+import { AdopterThankYou } from '../pages/AdopterThankYou';
 import { AdopterNew } from '../pages/AdopterNew';
 import { AdoptersList } from '../pages/AdoptersList';
 import { AdopterDetails } from '../pages/AdopterDetails';
 import { AdoptionNew } from '../pages/AdoptionNew';
 import { AdoptionsList } from '../pages/AdoptionsList';
 import { AdoptionDetails } from '../pages/AdoptionDetails';
+import { DonationsList } from '../pages/DonationsList';
+import { DonorsList } from '../pages/DonorsList';
+import { UsersList } from '../pages/UsersList';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -56,6 +60,7 @@ export const AppRoutes = () => {
         {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/adopter/register" element={<AdopterAutoRegister />} />
+        <Route path="/adopter/thank-you" element={<AdopterThankYou />} />
         
         {/* Rotas protegidas */}
         <Route
@@ -252,6 +257,33 @@ export const AppRoutes = () => {
           element={
             <RequireAuth>
               <AdoptionDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/donations"
+          element={
+            <RequireAuth>
+              <DonationsList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/donors"
+          element={
+            <RequireAuth>
+              <DonorsList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <RequireAuth>
+              <UsersList />
             </RequireAuth>
           }
         />

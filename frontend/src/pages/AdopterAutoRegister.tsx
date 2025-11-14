@@ -11,10 +11,7 @@ import {
   CircularProgress,
   Grid,
   MenuItem,
-  InputAdornment,
-  IconButton,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { userService, UserCreate } from '../services/user.service';
 import { adopterService } from '../services/adopter.service';
 import { UFS } from '../constants/ufs';
@@ -30,8 +27,6 @@ export const AdopterAutoRegister = () => {
   const [email, setEmail] = useState('');
   const [cpf, setCpf] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [dataNascimento, setDataNascimento] = useState('');
-  const [genero, setGenero] = useState<'M' | 'F' | 'Outro'>('M');
   const [endereco, setEndereco] = useState('');
   const [numero, setNumero] = useState('');
   const [complemento, setComplemento] = useState('');
@@ -39,10 +34,6 @@ export const AdopterAutoRegister = () => {
   const [cidade, setCidade] = useState('');
   const [uf, setUf] = useState('');
   const [cep, setCep] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmSenha, setConfirmSenha] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -100,21 +91,6 @@ export const AdopterAutoRegister = () => {
       return;
     }
 
-    if (!senha.trim()) {
-      setError('Senha é obrigatória');
-      return;
-    }
-
-    if (senha.length < 6) {
-      setError('Senha deve ter no mínimo 6 caracteres');
-      return;
-    }
-
-    if (senha !== confirmSenha) {
-      setError('As senhas não coincidem');
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -124,8 +100,6 @@ export const AdopterAutoRegister = () => {
         email: email.trim().toLowerCase(),
         cpf: cpfLimpo,
         telefone: telefone.replace(/\D/g, '') || undefined,
-        data_nascimento: dataNascimento || undefined,
-        genero: genero,
         endereco: endereco.trim() || undefined,
         numero: numero.trim() || undefined,
         complemento: complemento.trim() || undefined,
@@ -139,15 +113,12 @@ export const AdopterAutoRegister = () => {
       const userResponse = await userService.create(userData);
       const userId = userResponse.data.id;
 
-      // Definir senha
-      await userService.setPassword(userId, senha);
-
       // Registrar como adotante (adicionar role ADOTANTE)
       await adopterService.registerAsAdopter({ id_usuario: userId });
 
       setSuccess(true);
       setTimeout(() => {
-        navigate('/login');
+        navigate('/adopter/thank-you');
       }, 2000);
     } catch (err: any) {
       const errorMessage =
@@ -187,7 +158,7 @@ export const AdopterAutoRegister = () => {
 
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
-              Cadastro realizado com sucesso! Redirecionando para login...
+              Cadastro realizado com sucesso! Redirecionando...
             </Alert>
           )}
 
@@ -233,31 +204,6 @@ export const AdopterAutoRegister = () => {
                   onChange={(e) => setTelefone(formatPhone(e.target.value))}
                   inputProps={{ maxLength: 15 }}
                 />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Data de Nascimento"
-                  type="date"
-                  value={dataNascimento}
-                  onChange={(e) => setDataNascimento(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  select
-                  label="Gênero"
-                  value={genero}
-                  onChange={(e) => setGenero(e.target.value as 'M' | 'F' | 'Outro')}
-                >
-                  <MenuItem value="M">Masculino</MenuItem>
-                  <MenuItem value="F">Feminino</MenuItem>
-                  <MenuItem value="Outro">Outro</MenuItem>
-                </TextField>
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -329,52 +275,6 @@ export const AdopterAutoRegister = () => {
                     </MenuItem>
                   ))}
                 </TextField>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Senha *"
-                  type={showPassword ? 'text' : 'password'}
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  required
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Confirmar Senha *"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={confirmSenha}
-                  onChange={(e) => setConfirmSenha(e.target.value)}
-                  required
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          edge="end"
-                        >
-                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
               </Grid>
 
               <Grid item xs={12}>
