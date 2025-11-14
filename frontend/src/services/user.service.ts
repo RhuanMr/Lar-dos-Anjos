@@ -36,5 +36,13 @@ export const userService = {
     );
     return response.data;
   },
+
+  setPassword: async (userId: string, senha: string) => {
+    const response = await api.patch<{ success: boolean; message: string }>(
+      `/usuarios/${userId}/senha`,
+      { senha }
+    );
+    return response.data;
+  },
 };
 

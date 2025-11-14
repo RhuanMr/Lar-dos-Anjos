@@ -23,6 +23,21 @@ export class ProjetoRepository {
     return data || null;
   }
 
+  async findByIds(ids: string[]): Promise<Projeto[]> {
+    if (!ids.length) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .in('id', ids)
+      .order('nome', { ascending: true });
+
+    if (error) throw new Error(error.message);
+    return data || [];
+  }
+
   async create(projeto: ProjetoInsert): Promise<Projeto> {
     const { data, error } = await supabase
       .from('projects')

@@ -1,14 +1,68 @@
 import { ProjetoRepository } from '@/repositories/ProjetoRepository';
 import { EnderecoService } from '@/services/EnderecoService';
-import { Projeto, ProjetoCreate, ProjetoInsert } from '@/types/index';
-import { EnderecoCreate } from '@/types/index';
+import {
+  Projeto,
+  ProjetoCreate,
+  ProjetoInsert,
+  EnderecoCreate,
+} from '@/types/index';
+import { Role } from '@/types/enums';
+import { AdministradorRepository } from '@/repositories/AdministradorRepository';
+import { FuncionarioRepository } from '@/repositories/FuncionarioRepository';
+import { VoluntarioRepository } from '@/repositories/VoluntarioRepository';
 
 export class ProjetoService {
   private repository = new ProjetoRepository();
   private enderecoService = new EnderecoService();
+  private administradorRepository = new AdministradorRepository();
+  private funcionarioRepository = new FuncionarioRepository();
+  private voluntarioRepository = new VoluntarioRepository();
 
-  async listar(): Promise<Projeto[]> {
-    return this.repository.findAll();
+  async listar(user?: { id: string; roles: Role[] }): Promise<Projeto[]> {
+    if (!user || user.roles.includes(Role.SUPER_ADMIN)) {
+      return this.repository.findAll();
+    }
+
+    const projectIds = new Set<string>();
+    const hasRole = (role: Role) => user.roles.includes(role);
+
+    try {
+      const adminProjetos =
+        await this.administradorRepository.findByUsuario(user.id);
+      adminProjetos.forEach((admin) => projectIds.add(admin.id_projeto));
+    } catch (error) {
+      console.error('Erro ao buscar projetos como administrador:', error);
+    }
+
+    if (hasRole(Role.FUNCIONARIO)) {
+      try {
+        const funcionarios =
+          await this.funcionarioRepository.findByUsuario(user.id);
+        funcionarios.forEach((funcionario) =>
+          projectIds.add(funcionario.id_projeto)
+        );
+      } catch (error) {
+        console.error('Erro ao buscar projetos como funcionário:', error);
+      }
+    }
+
+    if (hasRole(Role.VOLUNTARIO)) {
+      try {
+        const voluntarios =
+          await this.voluntarioRepository.findByUsuario(user.id);
+        voluntarios.forEach((voluntario) =>
+          projectIds.add(voluntario.id_projeto)
+        );
+      } catch (error) {
+        console.error('Erro ao buscar projetos como voluntário:', error);
+      }
+    }
+
+    if (!projectIds.size) {
+      return [];
+    }
+
+    return this.repository.findByIds([...projectIds]);
   }
 
   async buscarPorId(id: string): Promise<Projeto> {

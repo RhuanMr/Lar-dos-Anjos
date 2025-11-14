@@ -4,4 +4,5 @@ export * from './Project';
 export * from './Employee';
 export * from './Volunteer';
 export * from './Admin';
+export * from './Animal';
 

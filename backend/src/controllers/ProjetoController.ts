@@ -5,9 +5,9 @@ import { ApiResponse, ProjetoCreate } from '@/types/index';
 export class ProjetoController {
   private service = new ProjetoService();
 
-  async listar(_req: Request, res: Response): Promise<void> {
+  async listar(req: Request, res: Response): Promise<void> {
     try {
-      const projetos = await this.service.listar();
+      const projetos = await this.service.listar(req.user);
       const response: ApiResponse = {
         success: true,
         data: projetos,

@@ -25,13 +25,31 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
   const getUserProjects = async () => {
     try {
       setLoading(true);
-      const response = await api.get<{ success: boolean; data: Project[] }>('/api/projetos');
+      const response = await api.get<{ success: boolean; data: Project[] }>(
+        '/projetos'
+      );
       if (response.data.success) {
-        setProjects(response.data.data);
+        const loadedProjects = response.data.data;
+        setProjects(loadedProjects);
+
+        const selectedStillExists = loadedProjects.some(
+          (project) => project.id === selectedProject?.id
+        );
+
+        if (!selectedProject && loadedProjects.length === 1) {
+          selectProject(loadedProjects[0]);
+        } else if (selectedProject && !selectedStillExists) {
+          if (loadedProjects.length > 0) {
+            selectProject(loadedProjects[0]);
+          } else {
+            clearProject();
+          }
+        }
       }
     } catch (error) {
       console.error('Erro ao buscar projetos:', error);
       setProjects([]);
+      clearProject();
     } finally {
       setLoading(false);
     }

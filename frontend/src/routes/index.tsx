@@ -7,6 +7,10 @@ import { EmployeeVolunteerNew } from '../pages/EmployeeVolunteerNew';
 import { ProjectNew } from '../pages/ProjectNew';
 import { ProjectsList } from '../pages/ProjectsList';
 import { AdminNew } from '../pages/AdminNew';
+import { AnimalsList } from '../pages/AnimalsList';
+import { AnimalNew } from '../pages/AnimalNew';
+import { AnimalDetails } from '../pages/AnimalDetails';
+import { SetPassword } from '../pages/SetPassword';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -103,6 +107,42 @@ export const AppRoutes = () => {
           element={
             <RequireAuth>
               <AdminNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/animals"
+          element={
+            <RequireAuth>
+              <AnimalsList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/animals/new"
+          element={
+            <RequireAuth>
+              <AnimalNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/animals/:id"
+          element={
+            <RequireAuth>
+              <AnimalDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/users/:id/password"
+          element={
+            <RequireAuth>
+              <SetPassword />
             </RequireAuth>
           }
         />
