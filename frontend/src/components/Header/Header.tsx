@@ -33,7 +33,11 @@ export const Header = () => {
   };
 
   const handleUserClick = () => {
-    navigate('/profile');
+    if (user?.id) {
+      navigate(`/users/${user.id}`);
+    } else {
+      navigate('/profile');
+    }
   };
 
   return (

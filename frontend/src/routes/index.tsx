@@ -12,6 +12,7 @@ import { AnimalNew } from '../pages/AnimalNew';
 import { AnimalDetails } from '../pages/AnimalDetails';
 import { SetPassword } from '../pages/SetPassword';
 import { ProjectDetails } from '../pages/ProjectDetails';
+import { UserDetails } from '../pages/UserDetails';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -171,6 +172,15 @@ export const AppRoutes = () => {
           element={
             <RequireAuth>
               <SetPassword />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/users/:id"
+          element={
+            <RequireAuth>
+              <UserDetails />
             </RequireAuth>
           }
         />

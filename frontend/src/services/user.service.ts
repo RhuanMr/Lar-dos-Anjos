@@ -1,5 +1,5 @@
 import { api } from '../api/api';
-import { User } from '../types';
+import { User, UserUpdate } from '../types';
 
 export interface UserCreate {
   nome: string;
@@ -41,6 +41,14 @@ export const userService = {
     const response = await api.patch<{ success: boolean; message: string }>(
       `/usuarios/${userId}/senha`,
       { senha }
+    );
+    return response.data;
+  },
+
+  update: async (id: string, data: UserUpdate) => {
+    const response = await api.patch<{ success: boolean; data: User; message?: string }>(
+      `/usuarios/${id}`,
+      data
     );
     return response.data;
   },
