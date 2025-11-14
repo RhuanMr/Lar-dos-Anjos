@@ -7,4 +7,6 @@ export * from './Admin';
 export * from './Animal';
 export * from './MedicalCase';
 export * from './Vaccine';
+export * from './Adoption';
+export * from './Adopter';
 

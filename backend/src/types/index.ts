@@ -163,6 +163,7 @@ export interface AdocaoCreate {
   id_adotante: string;
   id_animal: string;
   dt_adocao?: string;
+  lt_atualizacao?: string;
 }
 
 export interface AdocaoUpdate {

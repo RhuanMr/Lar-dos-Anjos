@@ -76,7 +76,15 @@ export class AdocaoService {
       throw new Error('Usuário não possui a role de Adotante');
     }
 
-    return this.repository.create(dados);
+    // Definir lt_atualizacao com a data atual se não fornecida
+    // Isso garante que o campo não seja NULL (requisito do banco)
+    const dataAtualizacao = dados.dt_adocao || new Date().toISOString().substring(0, 10);
+    const dadosComLtAtualizacao: AdocaoCreate = {
+      ...dados,
+      lt_atualizacao: dataAtualizacao,
+    };
+
+    return this.repository.create(dadosComLtAtualizacao);
   }
 
   async atualizar(

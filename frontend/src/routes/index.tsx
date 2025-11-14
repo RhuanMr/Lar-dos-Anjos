@@ -13,6 +13,13 @@ import { AnimalDetails } from '../pages/AnimalDetails';
 import { SetPassword } from '../pages/SetPassword';
 import { ProjectDetails } from '../pages/ProjectDetails';
 import { UserDetails } from '../pages/UserDetails';
+import { AdopterAutoRegister } from '../pages/AdopterAutoRegister';
+import { AdopterNew } from '../pages/AdopterNew';
+import { AdoptersList } from '../pages/AdoptersList';
+import { AdopterDetails } from '../pages/AdopterDetails';
+import { AdoptionNew } from '../pages/AdoptionNew';
+import { AdoptionsList } from '../pages/AdoptionsList';
+import { AdoptionDetails } from '../pages/AdoptionDetails';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -48,6 +55,7 @@ export const AppRoutes = () => {
       <Routes>
         {/* Rotas públicas */}
         <Route path="/login" element={<Login />} />
+        <Route path="/adopter/register" element={<AdopterAutoRegister />} />
         
         {/* Rotas protegidas */}
         <Route
@@ -181,6 +189,69 @@ export const AppRoutes = () => {
           element={
             <RequireAuth>
               <UserDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/adopters"
+          element={
+            <RequireAuth>
+              <AdoptersList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/adopters/new"
+          element={
+            <RequireAuth>
+              <AdopterNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/adopters/:id"
+          element={
+            <RequireAuth>
+              <AdopterDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/adoptions"
+          element={
+            <RequireAuth>
+              <AdoptionsList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/adoptions/new"
+          element={
+            <RequireAuth>
+              <AdoptionNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/adoptions/:id"
+          element={
+            <RequireAuth>
+              <AdoptionDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/adoptions/:id/edit"
+          element={
+            <RequireAuth>
+              <AdoptionDetails />
             </RequireAuth>
           }
         />

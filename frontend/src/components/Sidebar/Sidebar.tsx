@@ -105,6 +105,17 @@ export const Sidebar = () => {
               </ListItem>
               <ListItem disablePadding>
                 <ListItemButton
+                  selected={isActive('/adoptions/new')}
+                  onClick={() => navigate('/adoptions/new')}
+                >
+                  <ListItemIcon>
+                    <Favorite />
+                  </ListItemIcon>
+                  <ListItemText primary="Cadastro de Adoções" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
                   selected={isActive('/employees-volunteers/new')}
                   onClick={() => navigate('/employees-volunteers/new')}
                 >
