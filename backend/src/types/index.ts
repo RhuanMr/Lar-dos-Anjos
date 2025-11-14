@@ -85,6 +85,10 @@ export interface Projeto {
   ativo: boolean;
 }
 
+export interface ProjetoDetalhado extends Projeto {
+  endereco?: Endereco | null;
+}
+
 // Interface para receber dados do frontend (inclui campos de endereço temporários)
 export interface ProjetoCreate {
   nome: string;
@@ -105,9 +109,9 @@ export interface ProjetoCreate {
 export interface ProjetoInsert {
   nome: string;
   endereco_id: string;
-  instagram?: string;
-  telefone?: string;
-  email?: string;
+  instagram?: string | null;
+  telefone?: string | null;
+  email?: string | null;
 }
 
 /* ========== ANIMAIS ========== */
@@ -298,6 +302,7 @@ export interface Endereco {
   estado: UF;
   cidade: string;
   bairro: string;
+  endereco?: string;
   numero?: string;
   complemento?: string;
 }
@@ -307,17 +312,19 @@ export interface EnderecoCreate {
   estado: UF;
   cidade: string;
   bairro: string;
-  numero?: string;
-  complemento?: string;
+  endereco?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
 }
 
 export interface EnderecoUpdate {
-  cep?: string;
+  cep?: string | null;
   estado?: UF;
-  cidade?: string;
-  bairro?: string;
-  numero?: string;
-  complemento?: string;
+  cidade?: string | null;
+  bairro?: string | null;
+  endereco?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
 }
 
 /* ========== DOACOES ========== */

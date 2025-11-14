@@ -1,5 +1,5 @@
 import { api } from '../api/api';
-import { Project } from '../types/Project';
+import { Project, ProjectDetails } from '../types/Project';
 
 export interface ProjectCreate {
   nome: string;
@@ -22,7 +22,9 @@ export const projectService = {
   },
 
   getById: async (id: string) => {
-    const response = await api.get<{ success: boolean; data: Project }>(`/projetos/${id}`);
+    const response = await api.get<{ success: boolean; data: ProjectDetails }>(
+      `/projetos/${id}`
+    );
     return response.data;
   },
 
@@ -35,10 +37,11 @@ export const projectService = {
   },
 
   update: async (id: string, data: Partial<ProjectCreate>) => {
-    const response = await api.patch<{ success: boolean; data: Project; message: string }>(
-      `/projetos/${id}`,
-      data
-    );
+    const response = await api.patch<{
+      success: boolean;
+      data: ProjectDetails;
+      message: string;
+    }>(`/projetos/${id}`, data);
     return response.data;
   },
 

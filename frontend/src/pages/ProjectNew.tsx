@@ -14,13 +14,7 @@ import {
 import { ArrowBack, Save } from '@mui/icons-material';
 import { projectService, ProjectCreate } from '../services/project.service';
 import { useAuth } from '../contexts/AuthContext';
-
-// Lista de UFs brasileiras
-const UFS = [
-  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
-  'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
-  'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
-];
+import { UFS } from '../constants/ufs';
 
 export const ProjectNew = () => {
   const navigate = useNavigate();

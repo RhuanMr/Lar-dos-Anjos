@@ -11,6 +11,7 @@ import { AnimalsList } from '../pages/AnimalsList';
 import { AnimalNew } from '../pages/AnimalNew';
 import { AnimalDetails } from '../pages/AnimalDetails';
 import { SetPassword } from '../pages/SetPassword';
+import { ProjectDetails } from '../pages/ProjectDetails';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -107,6 +108,33 @@ export const AppRoutes = () => {
           element={
             <RequireAuth>
               <AdminNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/projects/:id"
+          element={
+            <RequireAuth>
+              <ProjectDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/projects/:id/edit"
+          element={
+            <RequireAuth>
+              <ProjectDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/project/edit"
+          element={
+            <RequireAuth>
+              <ProjectDetails />
             </RequireAuth>
           }
         />

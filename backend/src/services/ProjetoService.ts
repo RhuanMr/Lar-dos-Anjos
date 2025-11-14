@@ -5,6 +5,7 @@ import {
   ProjetoCreate,
   ProjetoInsert,
   EnderecoCreate,
+  ProjetoDetalhado,
 } from '@/types/index';
 import { Role } from '@/types/enums';
 import { AdministradorRepository } from '@/repositories/AdministradorRepository';
@@ -65,12 +66,28 @@ export class ProjetoService {
     return this.repository.findByIds([...projectIds]);
   }
 
-  async buscarPorId(id: string): Promise<Projeto> {
+  private async mapProjetoDetalhado(projeto: Projeto): Promise<ProjetoDetalhado> {
+    if (!projeto.endereco_id) {
+      return { ...projeto, endereco: null };
+    }
+
+    try {
+      const endereco = await this.enderecoService.buscarPorId(
+        projeto.endereco_id
+      );
+      return { ...projeto, endereco };
+    } catch (error) {
+      console.error('Erro ao buscar endereço do projeto:', error);
+      return { ...projeto, endereco: null };
+    }
+  }
+
+  async buscarPorId(id: string): Promise<ProjetoDetalhado> {
     const projeto = await this.repository.findById(id);
     if (!projeto) {
       throw new Error('Projeto não encontrado');
     }
-    return projeto;
+    return this.mapProjetoDetalhado(projeto);
   }
 
   async criar(dados: ProjetoCreate): Promise<Projeto> {
@@ -90,6 +107,7 @@ export class ProjetoService {
       estado: dados.uf,
       cidade: dados.cidade,
       bairro: dados.bairro,
+      endereco: dados.endereco,
       ...(dados.numero && { numero: dados.numero }),
       ...(dados.complemento && { complemento: dados.complemento }),
     };
@@ -113,9 +131,67 @@ export class ProjetoService {
   async atualizar(
     id: string,
     dados: Partial<ProjetoCreate>
-  ): Promise<Projeto> {
-    await this.buscarPorId(id);
-    return this.repository.update(id, dados as any);
+  ): Promise<ProjetoDetalhado> {
+    const projeto = await this.repository.findById(id);
+    if (!projeto) {
+      throw new Error('Projeto não encontrado');
+    }
+
+    const projetoUpdate: Record<string, any> = {};
+
+    if (dados.nome !== undefined) {
+      projetoUpdate.nome = dados.nome;
+    }
+
+    if (dados.instagram !== undefined) {
+      projetoUpdate.instagram = dados.instagram ?? null;
+    }
+
+    if (dados.telefone !== undefined) {
+      projetoUpdate.telefone = dados.telefone
+        ? dados.telefone.replace(/\D/g, '')
+        : null;
+    }
+
+    if (dados.email !== undefined) {
+      projetoUpdate.email = dados.email ? dados.email.toLowerCase() : null;
+    }
+
+    if (Object.keys(projetoUpdate).length > 0) {
+      await this.repository.update(id, projetoUpdate);
+    }
+
+    const enderecoUpdate: Record<string, any> = {};
+    if (dados.cep !== undefined) {
+      enderecoUpdate.cep = dados.cep ? dados.cep.replace(/\D/g, '') : null;
+    }
+    if (dados.uf !== undefined) {
+      enderecoUpdate.estado = dados.uf || null;
+    }
+    if (dados.cidade !== undefined) {
+      enderecoUpdate.cidade = dados.cidade ?? null;
+    }
+    if (dados.bairro !== undefined) {
+      enderecoUpdate.bairro = dados.bairro ?? null;
+    }
+    if (dados.endereco !== undefined) {
+      enderecoUpdate.endereco = dados.endereco ?? null;
+    }
+    if (dados.numero !== undefined) {
+      enderecoUpdate.numero = dados.numero ?? null;
+    }
+    if (dados.complemento !== undefined) {
+      enderecoUpdate.complemento = dados.complemento ?? null;
+    }
+
+    if (
+      Object.keys(enderecoUpdate).length > 0 &&
+      projeto.endereco_id
+    ) {
+      await this.enderecoService.atualizar(projeto.endereco_id, enderecoUpdate);
+    }
+
+    return this.buscarPorId(id);
   }
 
   async deletar(id: string): Promise<void> {
