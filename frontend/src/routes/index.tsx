@@ -22,7 +22,10 @@ import { AdoptionNew } from '../pages/AdoptionNew';
 import { AdoptionsList } from '../pages/AdoptionsList';
 import { AdoptionDetails } from '../pages/AdoptionDetails';
 import { DonationsList } from '../pages/DonationsList';
+import { DonationNew } from '../pages/DonationNew';
+import { DonationDetails } from '../pages/DonationDetails';
 import { DonorsList } from '../pages/DonorsList';
+import { DonorDetails } from '../pages/DonorDetails';
 import { UsersList } from '../pages/UsersList';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
@@ -271,10 +274,55 @@ export const AppRoutes = () => {
         />
 
         <Route
+          path="/donations/new"
+          element={
+            <RequireAuth>
+              <DonationNew />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/donations/:id"
+          element={
+            <RequireAuth>
+              <DonationDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/donations/:id/edit"
+          element={
+            <RequireAuth>
+              <DonationDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
           path="/donors"
           element={
             <RequireAuth>
               <DonorsList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/donors/:usuarioId/:projetoId"
+          element={
+            <RequireAuth>
+              <DonorDetails />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/donors/:usuarioId/:projetoId/edit"
+          element={
+            <RequireAuth>
+              <DonorDetails />
             </RequireAuth>
           }
         />

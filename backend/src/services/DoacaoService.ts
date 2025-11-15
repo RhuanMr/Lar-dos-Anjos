@@ -1,4 +1,5 @@
 import { DoacaoRepository } from '@/repositories/DoacaoRepository';
+import { DoadorRepository } from '@/repositories/DoadorRepository';
 import { UsuarioRepository } from '@/repositories/UsuarioRepository';
 import { ProjetoRepository } from '@/repositories/ProjetoRepository';
 import { Doacao, DoacaoCreate, DoacaoUpdate } from '@/types/index';
@@ -6,6 +7,7 @@ import { Role } from '@/types/enums';
 
 export class DoacaoService {
   private repository = new DoacaoRepository();
+  private doadorRepository = new DoadorRepository();
   private usuarioRepository = new UsuarioRepository();
   private projetoRepository = new ProjetoRepository();
 
@@ -57,6 +59,30 @@ export class DoacaoService {
     const projeto = await this.projetoRepository.findById(dados.id_project);
     if (!projeto) {
       throw new Error('Projeto não encontrado');
+    }
+
+    // Verificar se o usuário está cadastrado como doador no projeto
+    // A constraint donations_id_user_id_project_fkey exige que o usuário esteja em donors
+    const doador = await this.doadorRepository.findByUsuarioAndProjeto(
+      dados.id_user,
+      dados.id_project
+    );
+
+    // Se não for doador, criar automaticamente
+    if (!doador) {
+      try {
+        await this.doadorRepository.create({
+          id_usuario: dados.id_user,
+          id_projeto: dados.id_project,
+        });
+      } catch (err: any) {
+        // Se já existir (race condition), continuar
+        if (!err.message.includes('já está cadastrado')) {
+          throw new Error(
+            'Erro ao cadastrar usuário como doador: ' + err.message
+          );
+        }
+      }
     }
 
     return this.repository.create(dados);

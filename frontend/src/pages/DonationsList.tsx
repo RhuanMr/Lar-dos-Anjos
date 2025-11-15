@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Alert,
   Chip,
+  Grid,
 } from '@mui/material';
 import {
   Add,
@@ -30,18 +31,22 @@ import {
   AttachMoney,
 } from '@mui/icons-material';
 import { donationService } from '../services/donation.service';
+import { userService } from '../services/user.service';
 import { useProject } from '../contexts/ProjectContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Donation } from '../types/Donation';
+import { User } from '../types/User';
 
 export const DonationsList = () => {
   const navigate = useNavigate();
   const { selectedProject } = useProject();
   const { hasRole } = useAuth();
   const [donations, setDonations] = useState<Donation[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterTpAjuda, setFilterTpAjuda] = useState<string>('');
   const [anchorEl, setAnchorEl] = useState<{ [key: string]: HTMLElement | null }>({});
 
   const isAdmin = hasRole('ADMINISTRADOR') || hasRole('SUPERADMIN');
@@ -64,6 +69,14 @@ export const DonationsList = () => {
         data = await donationService.getAll();
       }
       setDonations(data);
+
+      // Carregar usuários para mostrar doadores
+      try {
+        const usersResponse = await userService.getAll();
+        setUsers(usersResponse.data || []);
+      } catch (err) {
+        console.error('Erro ao carregar usuários:', err);
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Erro ao carregar doações');
     } finally {
@@ -106,11 +119,19 @@ export const DonationsList = () => {
 
   const filteredDonations = donations.filter((donation) => {
     const searchLower = searchTerm.toLowerCase();
-    return (
+    const donor = users.find((u) => u.id === donation.id_user);
+    const donorName = donor?.nome?.toLowerCase() || '';
+    const donorEmail = donor?.email?.toLowerCase() || '';
+
+    const matchesSearch =
       donation.id.toLowerCase().includes(searchLower) ||
-      (donation.itens && donation.itens.toLowerCase().includes(searchLower)) ||
-      (donation.observacao && donation.observacao.toLowerCase().includes(searchLower))
-    );
+      (donation.observacao && donation.observacao.toLowerCase().includes(searchLower)) ||
+      donorName.includes(searchLower) ||
+      donorEmail.includes(searchLower);
+
+    const matchesTpAjuda = !filterTpAjuda || donation.tp_ajuda === filterTpAjuda;
+
+    return matchesSearch && matchesTpAjuda;
   });
 
   const formatDate = (dateString?: string) => {
@@ -160,25 +181,44 @@ export const DonationsList = () => {
 
       <Paper>
         <Box sx={{ p: 2 }}>
-          <TextField
-            fullWidth
-            placeholder="Buscar doações..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-          />
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                placeholder="Buscar doações..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                select
+                label="Tipo de Ajuda"
+                value={filterTpAjuda}
+                onChange={(e) => setFilterTpAjuda(e.target.value)}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value="Financeira">Financeira</MenuItem>
+                <MenuItem value="Itens">Itens</MenuItem>
+                <MenuItem value="Outro">Outro</MenuItem>
+              </TextField>
+            </Grid>
+          </Grid>
         </Box>
 
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Doador</TableCell>
                 <TableCell>Tipo de Ajuda</TableCell>
                 <TableCell>Tipo de Pagamento</TableCell>
                 <TableCell>Valor</TableCell>
@@ -191,61 +231,91 @@ export const DonationsList = () => {
             <TableBody>
               {filteredDonations.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={8} align="center">
                     <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
                       Nenhuma doação encontrada
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredDonations.map((donation) => (
-                  <TableRow key={donation.id} hover>
-                    <TableCell>
-                      {donation.tp_ajuda ? (
-                        <Chip label={donation.tp_ajuda} size="small" />
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>{donation.tp_pagamento || '-'}</TableCell>
-                    <TableCell>{formatCurrency(donation.valor)}</TableCell>
-                    <TableCell>{donation.itens || '-'}</TableCell>
-                    <TableCell>{formatDate(donation.data)}</TableCell>
-                    <TableCell>{donation.observacao || '-'}</TableCell>
-                    <TableCell align="right">
-                      <IconButton
-                        onClick={(e) => handleMenuOpen(donation.id, e)}
-                        size="small"
-                      >
-                        <MoreVert />
-                      </IconButton>
-                      <Menu
-                        anchorEl={anchorEl[donation.id]}
-                        open={Boolean(anchorEl[donation.id])}
-                        onClose={() => handleMenuClose(donation.id)}
-                      >
-                        <MenuItem onClick={() => handleView(donation.id)}>
-                          <Visibility sx={{ mr: 1 }} fontSize="small" />
-                          Ver Detalhes
-                        </MenuItem>
-                        {(isAdmin || isEmployee) && (
-                          <>
-                            <MenuItem onClick={() => handleEdit(donation.id)}>
-                              <Edit sx={{ mr: 1 }} fontSize="small" />
-                              Editar
-                            </MenuItem>
-                            {isAdmin && (
-                              <MenuItem onClick={() => handleDelete(donation.id)}>
-                                <Delete sx={{ mr: 1 }} fontSize="small" />
-                                Excluir
-                              </MenuItem>
-                            )}
-                          </>
+                filteredDonations.map((donation) => {
+                  const donor = users.find((u) => u.id === donation.id_user);
+                  return (
+                    <TableRow key={donation.id} hover>
+                      <TableCell>
+                        {donor ? (
+                          donor.nome === 'Doação Anônima' ? (
+                            <Chip label="Anônima" size="small" color="default" />
+                          ) : (
+                            donor.nome
+                          )
+                        ) : (
+                          '-'
                         )}
-                      </Menu>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                      <TableCell>
+                        {donation.tp_ajuda ? (
+                          <Chip label={donation.tp_ajuda} size="small" />
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {donation.tp_ajuda === 'Financeira' && donation.tp_pagamento ? (
+                          donation.tp_pagamento
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {donation.tp_ajuda === 'Financeira' ? formatCurrency(donation.valor) : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {donation.tp_ajuda === 'Itens' && donation.itens ? (
+                          <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {donation.itens}
+                          </Typography>
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
+                      <TableCell>{formatDate(donation.data)}</TableCell>
+                      <TableCell>{donation.observacao || '-'}</TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          onClick={(e) => handleMenuOpen(donation.id, e)}
+                          size="small"
+                        >
+                          <MoreVert />
+                        </IconButton>
+                        <Menu
+                          anchorEl={anchorEl[donation.id]}
+                          open={Boolean(anchorEl[donation.id])}
+                          onClose={() => handleMenuClose(donation.id)}
+                        >
+                          <MenuItem onClick={() => handleView(donation.id)}>
+                            <Visibility sx={{ mr: 1 }} fontSize="small" />
+                            Ver Detalhes
+                          </MenuItem>
+                          {(isAdmin || isEmployee) && (
+                            <>
+                              <MenuItem onClick={() => handleEdit(donation.id)}>
+                                <Edit sx={{ mr: 1 }} fontSize="small" />
+                                Editar
+                              </MenuItem>
+                              {isAdmin && (
+                                <MenuItem onClick={() => handleDelete(donation.id)}>
+                                  <Delete sx={{ mr: 1 }} fontSize="small" />
+                                  Excluir
+                                </MenuItem>
+                              )}
+                            </>
+                          )}
+                        </Menu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
