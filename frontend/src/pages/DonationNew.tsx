@@ -16,7 +16,13 @@ import {
   Checkbox,
   Collapse,
 } from '@mui/material';
-import { ArrowBack, Save, PersonAdd, ExpandLess, ExpandMore } from '@mui/icons-material';
+import {
+  ArrowBack,
+  Save,
+  PersonAdd,
+  ExpandLess,
+  ExpandMore,
+} from '@mui/icons-material';
 import Fuse from 'fuse.js';
 import { donationService } from '../services/donation.service';
 import { donorService } from '../services/donor.service';
@@ -81,7 +87,9 @@ export const DonationNew = () => {
       const usersResponse = await userService.getAll();
       const allUsers = usersResponse.data || [];
       // Filtrar apenas doadores
-      const donorsList = allUsers.filter((user) => user.roles.includes('DOADOR'));
+      const donorsList = allUsers.filter((user) =>
+        user.roles.includes('DOADOR')
+      );
       setDonors(donorsList);
     } catch (err: any) {
       console.error('Erro ao carregar doadores:', err);
@@ -244,7 +252,10 @@ export const DonationNew = () => {
         id_project: selectedProject.id,
         tp_ajuda: tpAjuda,
         tp_pagamento: tpAjuda === 'Financeira' ? tpPagamento : undefined,
-        valor: tpAjuda === 'Financeira' && valor ? parseFloat(valor.replace(',', '.')) : undefined,
+        valor:
+          tpAjuda === 'Financeira' && valor
+            ? parseFloat(valor.replace(',', '.'))
+            : undefined,
         itens: tpAjuda === 'Itens' ? itens.trim() : undefined,
         data: data || undefined,
         observacao: observacao.trim() || undefined,
@@ -435,7 +446,9 @@ export const DonationNew = () => {
                             fullWidth
                             label="Observação"
                             value={newDonorObservacao}
-                            onChange={(e) => setNewDonorObservacao(e.target.value)}
+                            onChange={(e) =>
+                              setNewDonorObservacao(e.target.value)
+                            }
                             multiline
                             rows={3}
                             placeholder="Adicione observações sobre o doador..."
@@ -498,7 +511,9 @@ export const DonationNew = () => {
                     select
                     label="Tipo de Pagamento"
                     value={tpPagamento}
-                    onChange={(e) => setTpPagamento(e.target.value as TipoPagamento)}
+                    onChange={(e) =>
+                      setTpPagamento(e.target.value as TipoPagamento)
+                    }
                   >
                     <MenuItem value="Pix">Pix</MenuItem>
                     <MenuItem value="Dinheiro">Dinheiro</MenuItem>
@@ -583,4 +598,3 @@ export const DonationNew = () => {
     </Box>
   );
 };
-
