@@ -27,8 +27,35 @@ import { DonationDetails } from '../pages/DonationDetails';
 import { DonorsList } from '../pages/DonorsList';
 import { DonorDetails } from '../pages/DonorDetails';
 import { UsersList } from '../pages/UsersList';
+import { SelectProject } from '../pages/SelectProject';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
+
+// Componente para proteger rotas sem layout (ex: seleção de projeto)
+const RequireAuthNoLayout = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 // Componente para proteger rotas
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
@@ -64,6 +91,16 @@ export const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/adopter/register" element={<AdopterAutoRegister />} />
         <Route path="/adopter/thank-you" element={<AdopterThankYou />} />
+        
+        {/* Rota de seleção de projeto (autenticada mas sem layout) */}
+        <Route
+          path="/select-project"
+          element={
+            <RequireAuthNoLayout>
+              <SelectProject />
+            </RequireAuthNoLayout>
+          }
+        />
         
         {/* Rotas protegidas */}
         <Route

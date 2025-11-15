@@ -31,10 +31,16 @@ export const Login = () => {
   useEffect(() => {
     if (!authLoading && isAuthenticated && !hasRedirected.current) {
       hasRedirected.current = true;
-      navigate('/dashboard', { replace: true });
+      handleRedirectAfterAuth();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, authLoading]);
+
+  const handleRedirectAfterAuth = () => {
+    // Redirecionar para seleção de projeto
+    // A página SelectProject vai decidir se mostra a lista ou seleciona automaticamente
+    navigate('/select-project', { replace: true });
+  };
 
   // Mostrar loading enquanto verifica autenticação
   if (authLoading) {
@@ -99,9 +105,9 @@ export const Login = () => {
     try {
       await login(email, senha);
       
-      // Redirecionar após login bem-sucedido
-      // Usar replace para evitar voltar para login com botão voltar
-      navigate('/dashboard', { replace: true });
+      // Redirecionar para seleção de projeto
+      // A página SelectProject vai decidir se mostra a lista ou seleciona automaticamente
+      navigate('/select-project', { replace: true });
     } catch (err: any) {
       setLoading(false);
       const errorMessage =
