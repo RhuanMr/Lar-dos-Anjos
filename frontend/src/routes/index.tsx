@@ -28,6 +28,7 @@ import { DonorsList } from '../pages/DonorsList';
 import { DonorDetails } from '../pages/DonorDetails';
 import { UsersList } from '../pages/UsersList';
 import { SelectProject } from '../pages/SelectProject';
+import { ShareAutoCadastro } from '../pages/ShareAutoCadastro';
 import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 
@@ -369,6 +370,15 @@ export const AppRoutes = () => {
           element={
             <RequireAuth>
               <UsersList />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/share-autocadastro"
+          element={
+            <RequireAuth>
+              <ShareAutoCadastro />
             </RequireAuth>
           }
         />
