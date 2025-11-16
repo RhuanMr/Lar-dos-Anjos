@@ -1,7 +1,10 @@
 import { supabase } from '@/database/supabase';
 import { Usuario, UsuarioUpdate } from '@/types/index';
+import { EnderecoRepository } from './EnderecoRepository';
 
 export class UsuarioRepository {
+  private enderecoRepository = new EnderecoRepository();
+
   async findAll(): Promise<Usuario[]> {
     try {
       console.log('Buscando usuários na tabela users...');
@@ -40,14 +43,37 @@ export class UsuarioRepository {
 
       console.log(`✓ ${data?.length || 0} usuários encontrados`);
 
+      // Buscar endereços para todos os usuários que têm endereco_id
+      const usuariosComEndereco = await Promise.all(
+        (data || []).map(async (usuario: any) => {
+          if (usuario.endereco_id) {
+            try {
+              const endereco = await this.enderecoRepository.findById(usuario.endereco_id);
+              if (endereco) {
+                usuario.endereco = endereco.endereco || undefined;
+                usuario.numero = endereco.numero || undefined;
+                usuario.complemento = endereco.complemento || undefined;
+                usuario.bairro = endereco.bairro || undefined;
+                usuario.cidade = endereco.cidade || undefined;
+                usuario.uf = endereco.estado || undefined;
+                usuario.cep = endereco.cep || undefined;
+              }
+            } catch (err) {
+              console.warn(`Erro ao buscar endereço ${usuario.endereco_id} para usuário ${usuario.id}:`, err);
+            }
+          }
+          return usuario;
+        })
+      );
+
       // Ordenar manualmente no código se necessário
-      const usuarios = (data || []).sort((a, b) => {
+      usuariosComEndereco.sort((a, b) => {
         const nomeA = (a.nome || '').trim();
         const nomeB = (b.nome || '').trim();
         return nomeA.localeCompare(nomeB, 'pt-BR');
       });
 
-      return usuarios;
+      return usuariosComEndereco as Usuario[];
     } catch (err) {
       console.error('Erro no findAll do UsuarioRepository:', err);
       throw err;
@@ -62,7 +88,28 @@ export class UsuarioRepository {
       .single();
 
     if (error && error.code !== 'PGRST116') throw new Error(error.message);
-    return data || null;
+    if (!data) return null;
+
+    // Buscar endereço se houver endereco_id
+    const usuario = { ...data };
+    if (data.endereco_id) {
+      try {
+        const endereco = await this.enderecoRepository.findById(data.endereco_id);
+        if (endereco) {
+          usuario.endereco = endereco.endereco || undefined;
+          usuario.numero = endereco.numero || undefined;
+          usuario.complemento = endereco.complemento || undefined;
+          usuario.bairro = endereco.bairro || undefined;
+          usuario.cidade = endereco.cidade || undefined;
+          usuario.uf = endereco.estado || undefined;
+          usuario.cep = endereco.cep || undefined;
+        }
+      } catch (err) {
+        console.warn(`Erro ao buscar endereço ${data.endereco_id} para usuário ${id}:`, err);
+      }
+    }
+
+    return usuario as Usuario;
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {
@@ -143,7 +190,28 @@ export class UsuarioRepository {
       .single();
 
     if (error) throw new Error(error.message);
-    return data;
+    if (!data) throw new Error('Usuário não encontrado após atualização');
+
+    // Buscar endereço se houver endereco_id
+    const usuarioAtualizado = { ...data };
+    if (data.endereco_id) {
+      try {
+        const endereco = await this.enderecoRepository.findById(data.endereco_id);
+        if (endereco) {
+          usuarioAtualizado.endereco = endereco.endereco || undefined;
+          usuarioAtualizado.numero = endereco.numero || undefined;
+          usuarioAtualizado.complemento = endereco.complemento || undefined;
+          usuarioAtualizado.bairro = endereco.bairro || undefined;
+          usuarioAtualizado.cidade = endereco.cidade || undefined;
+          usuarioAtualizado.uf = endereco.estado || undefined;
+          usuarioAtualizado.cep = endereco.cep || undefined;
+        }
+      } catch (err) {
+        console.warn(`Erro ao buscar endereço ${data.endereco_id} para usuário ${id}:`, err);
+      }
+    }
+
+    return usuarioAtualizado as Usuario;
   }
 
   async delete(id: string): Promise<void> {

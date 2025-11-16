@@ -71,6 +71,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user?.roles.includes(role) ?? false;
   };
 
+  const updateUser = (updatedUser: User | null) => {
+    setUser(updatedUser);
+    if (updatedUser) {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    } else {
+      localStorage.removeItem('user');
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -81,6 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         hasRole,
         loading,
+        setUser: updateUser,
       }}
     >
       {children}

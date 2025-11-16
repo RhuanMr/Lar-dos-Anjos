@@ -18,5 +18,6 @@ export interface AuthContextType {
   logout: () => void;
   hasRole: (role: string) => boolean;
   loading: boolean;
+  setUser?: (user: User | null) => void;
 }
 
