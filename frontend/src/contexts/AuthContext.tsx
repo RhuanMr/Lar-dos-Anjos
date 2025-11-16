@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { authService } from '../services/auth.service';
 import { User, AuthContextType } from '../types';
 
@@ -8,10 +8,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const checkingAuth = useRef(false);
+
+  const logout = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    setLoading(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('selectedProject');
+  }, []);
 
   useEffect(() => {
     // Verificar token no localStorage ao carregar
     const checkAuth = async () => {
+      // Evitar múltiplas chamadas simultâneas
+      if (checkingAuth.current) {
+        return;
+      }
+
+      checkingAuth.current = true;
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
 
@@ -24,25 +40,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Token válido
           setLoading(false);
         } catch (error: any) {
-          // Token inválido, expirado ou erro de conexão
-          // Se for erro de conexão (sem response), manter token mas marcar como não autenticado
-          if (!error.response) {
+          // Tratar erro 429 (Too Many Requests) - não limpar token, apenas aguardar
+          if (error.response?.status === 429) {
+            console.warn('Muitas requisições. Aguardando...');
+            // Manter dados mas marcar como não autenticado temporariamente
+            setUser(null);
+            setToken(null);
+            setLoading(false);
+          } else if (!error.response) {
             // Erro de rede - manter dados mas não autenticado
             setUser(null);
             setToken(null);
+            setLoading(false);
           } else {
-            // Token inválido - limpar tudo
+            // Token inválido ou outro erro - limpar tudo
             logout();
           }
-          setLoading(false);
         }
       } else {
         setLoading(false);
       }
+      
+      checkingAuth.current = false;
     };
 
     checkAuth();
-  }, []);
+  }, [logout]);
 
   const login = async (email: string, senha: string) => {
     try {
@@ -56,15 +79,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       throw error;
     }
-  };
-
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    setLoading(false);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('selectedProject');
   };
 
   const hasRole = (role: string): boolean => {

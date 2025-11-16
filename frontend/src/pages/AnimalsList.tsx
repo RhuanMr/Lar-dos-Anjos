@@ -85,7 +85,7 @@ export const AnimalsList = () => {
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/animals/${id}/edit`);
+    navigate(`/animals/${id}`);
     handleMenuClose(id);
   };
 
@@ -229,18 +229,16 @@ export const AnimalsList = () => {
                           Ver Detalhes
                         </MenuItem>
                         {(isAdmin || isEmployee) && (
-                          <>
-                            <MenuItem onClick={() => handleEdit(animal.id)}>
-                              <Edit sx={{ mr: 1 }} fontSize="small" />
-                              Editar
-                            </MenuItem>
-                            {isAdmin && (
-                              <MenuItem onClick={() => handleDelete(animal.id)}>
-                                <Delete sx={{ mr: 1 }} fontSize="small" />
-                                Excluir
-                              </MenuItem>
-                            )}
-                          </>
+                          <MenuItem onClick={() => handleEdit(animal.id)}>
+                            <Edit sx={{ mr: 1 }} fontSize="small" />
+                            Editar
+                          </MenuItem>
+                        )}
+                        {isAdmin && (
+                          <MenuItem onClick={() => handleDelete(animal.id)}>
+                            <Delete sx={{ mr: 1 }} fontSize="small" />
+                            Excluir
+                          </MenuItem>
                         )}
                       </Menu>
                     </TableCell>

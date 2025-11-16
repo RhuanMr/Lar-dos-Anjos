@@ -21,6 +21,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
 import { ProjectDetails as ProjectDetailsType } from '../types/Project';
 import { UFS } from '../constants/ufs';
+import { PhotoUpload } from '../components/PhotoUpload';
 
 const formatPhone = (value?: string) => {
   if (!value) return 'N/A';
@@ -377,6 +378,39 @@ export const ProjectDetails = () => {
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
+            {/* Foto do Projeto */}
+            {canEdit && (
+              <Grid item xs={12}>
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Foto do Projeto
+                  </Typography>
+                  <PhotoUpload
+                    entityId={routeProjectId}
+                    entityType="projeto"
+                    existingPhotos={project.foto ? [project.foto] : []}
+                    onPhotosChange={async (photos) => {
+                      // Atualizar projeto com nova foto
+                      try {
+                        const updated = await projectService.update(routeProjectId, { foto: photos[0] || undefined });
+                        setProject(updated);
+                        if (!id && selectedProject && updated.id === selectedProject.id) {
+                          const { endereco, ...rest } = updated;
+                          selectProject(rest);
+                          await getUserProjects();
+                        }
+                      } catch (err: any) {
+                        setError(err.response?.data?.error || err.message || 'Erro ao atualizar foto');
+                      }
+                    }}
+                    maxPhotos={1}
+                    disabled={false}
+                  />
+                </Box>
+                <Divider sx={{ mb: 3 }} />
+              </Grid>
+            )}
+
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Typography variant="h6">Informações Gerais</Typography>

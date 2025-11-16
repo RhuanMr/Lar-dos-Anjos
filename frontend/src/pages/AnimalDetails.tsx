@@ -25,6 +25,7 @@ import { animalService } from '../services/animal.service';
 import { vaccineService } from '../services/vaccine.service';
 import { medicalCaseService } from '../services/medicalCase.service';
 import { useAuth } from '../contexts/AuthContext';
+import { PhotoUpload } from '../components/PhotoUpload';
 import {
   Animal,
   AnimalUpdate,
@@ -355,13 +356,16 @@ export const AnimalDetails = () => {
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <Avatar
-                src={animal.foto}
-                alt={animal.nome}
-                sx={{ width: 200, height: 200, mx: 'auto', mb: 2 }}
-              >
-                <Pets sx={{ fontSize: 80 }} />
-              </Avatar>
+              {/* Foto principal (se existir) */}
+              {animal.foto && (
+                <Avatar
+                  src={animal.foto}
+                  alt={animal.nome}
+                  sx={{ width: 200, height: 200, mx: 'auto', mb: 2 }}
+                >
+                  <Pets sx={{ fontSize: 80 }} />
+                </Avatar>
+              )}
               <Typography variant="h5" gutterBottom>
                 {animal.nome}
               </Typography>
@@ -390,6 +394,35 @@ export const AnimalDetails = () => {
               </Box>
             </CardContent>
           </Card>
+          
+          {/* Componente de Upload de Fotos */}
+          {canEdit && (
+            <Card sx={{ mt: 2 }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Fotos do Animal
+                </Typography>
+                <PhotoUpload
+                  entityId={animal.id}
+                  entityType="animal"
+                  existingPhotos={animal.fotos || (animal.foto ? [animal.foto] : [])}
+                  onPhotosChange={async (photos) => {
+                    // O backend já atualiza o animal durante o upload (via adicionarFotosAoAnimal)
+                    // Então apenas recarregamos o animal para sincronizar o estado
+                    try {
+                      const updated = await animalService.getById(animal.id);
+                      setAnimal(updated);
+                    } catch (err: any) {
+                      console.error('Erro ao recarregar animal após upload:', err);
+                      // Não mostrar erro ao usuário, apenas logar
+                    }
+                  }}
+                  maxPhotos={10}
+                  disabled={false}
+                />
+              </CardContent>
+            </Card>
+          )}
         </Grid>
 
         {/* Formulário de Edição/Visualização */}

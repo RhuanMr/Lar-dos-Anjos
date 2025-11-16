@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -24,6 +24,8 @@ export const SelectProject = () => {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [selecting, setSelecting] = useState(false);
 
+  const hasLoadedProjects = useRef(false);
+
   useEffect(() => {
     // Se não estiver autenticado, redirecionar para login
     if (!authLoading && !isAuthenticated) {
@@ -31,11 +33,20 @@ export const SelectProject = () => {
       return;
     }
 
-    // Se estiver autenticado, carregar projetos
-    if (isAuthenticated && !loading) {
-      getUserProjects();
+    // Se estiver autenticado e ainda não carregou projetos, carregar uma vez
+    if (isAuthenticated && !authLoading) {
+      // Se já tem projetos carregados, marcar como carregado
+      if (projects.length > 0) {
+        hasLoadedProjects.current = true;
+      }
+      // Se não tem projetos e ainda não tentou carregar, carregar
+      else if (!hasLoadedProjects.current && !loading) {
+        hasLoadedProjects.current = true;
+        getUserProjects();
+      }
     }
-  }, [isAuthenticated, authLoading, loading, getUserProjects, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, authLoading]);
 
   useEffect(() => {
     // Se tiver apenas 1 projeto, selecionar automaticamente
@@ -137,18 +148,17 @@ export const SelectProject = () => {
           {projects.map((project) => (
             <Grid item xs={12} sm={6} md={4} key={project.id}>
               <Card
+                component="div"
                 sx={{
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-4px)',
                     boxShadow: 4,
                   },
                 }}
-                onClick={() => !selecting && handleSelectProject(project)}
               >
                 {project.foto ? (
                   <CardMedia

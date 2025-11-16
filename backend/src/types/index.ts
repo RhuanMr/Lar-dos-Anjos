@@ -121,7 +121,8 @@ export interface Animal {
   id: string;
   id_projeto: string;
   nome: string;
-  foto?: string;
+  foto?: string; // Foto principal (mantida para compatibilidade)
+  fotos?: string[]; // Array de URLs de fotos adicionais
   entrada: string; // Data de entrada
   origem?: string;
   identificacao?: Identificacao;
@@ -133,6 +134,7 @@ export interface AnimalCreate {
   id_projeto: string;
   nome: string;
   foto?: string;
+  fotos?: string[];
   entrada: string;
   origem?: string;
   identificacao?: Identificacao;
@@ -143,6 +145,7 @@ export interface AnimalCreate {
 export interface AnimalUpdate {
   nome?: string;
   foto?: string;
+  fotos?: string[];
   entrada?: string;
   origem?: string;
   identificacao?: Identificacao;

@@ -6,7 +6,7 @@ export class AnimalRepository {
     const { data, error } = await supabase
       .from('animals')
       .select(
-        'id, id_project, nome, foto, entrada, origem, identificacao, vacinado, dt_castracao'
+        'id, id_project, nome, foto, fotos, entrada, origem, identificacao, vacinado, dt_castracao'
       )
       .order('entrada', { ascending: false });
 
@@ -18,7 +18,7 @@ export class AnimalRepository {
     const { data, error } = await supabase
       .from('animals')
       .select(
-        'id, id_project, nome, foto, entrada, origem, identificacao, vacinado, dt_castracao'
+        'id, id_project, nome, foto, fotos, entrada, origem, identificacao, vacinado, dt_castracao'
       )
       .eq('id_project', projetoId)
       .order('entrada', { ascending: false });
@@ -31,7 +31,7 @@ export class AnimalRepository {
     const { data, error } = await supabase
       .from('animals')
       .select(
-        'id, id_project, nome, foto, entrada, origem, identificacao, vacinado, dt_castracao'
+        'id, id_project, nome, foto, fotos, entrada, origem, identificacao, vacinado, dt_castracao'
       )
       .eq('id', id)
       .single();
@@ -46,7 +46,7 @@ export class AnimalRepository {
       .from('animals')
       .insert([insertData])
       .select(
-        'id, id_project, nome, foto, entrada, origem, identificacao, vacinado, dt_castracao'
+        'id, id_project, nome, foto, fotos, entrada, origem, identificacao, vacinado, dt_castracao'
       )
       .single();
 
@@ -61,7 +61,7 @@ export class AnimalRepository {
       .update(updateData)
       .eq('id', id)
       .select(
-        'id, id_project, nome, foto, entrada, origem, identificacao, vacinado, dt_castracao'
+        'id, id_project, nome, foto, fotos, entrada, origem, identificacao, vacinado, dt_castracao'
       )
       .single();
 
@@ -76,7 +76,24 @@ export class AnimalRepository {
   }
 
   private mapFromDatabase(dbAnimal: any): Animal {
-    return {
+    // Parse fotos se for string JSON, caso contrário usa array direto ou array vazio
+    let fotos: string[] = [];
+    if (dbAnimal.fotos) {
+      if (typeof dbAnimal.fotos === 'string') {
+        try {
+          const parsed = JSON.parse(dbAnimal.fotos);
+          if (Array.isArray(parsed)) {
+            fotos = parsed;
+          }
+        } catch {
+          fotos = [];
+        }
+      } else if (Array.isArray(dbAnimal.fotos)) {
+        fotos = dbAnimal.fotos;
+      }
+    }
+
+    const animal: Animal = {
       id: dbAnimal.id,
       id_projeto: dbAnimal.id_project,
       nome: dbAnimal.nome,
@@ -87,6 +104,13 @@ export class AnimalRepository {
       vacinado: dbAnimal.vacinado,
       dt_castracao: dbAnimal.dt_castracao,
     };
+
+    // Adicionar fotos apenas se houver fotos
+    if (fotos.length > 0) {
+      animal.fotos = fotos;
+    }
+
+    return animal;
   }
 
   private mapToDatabase(
@@ -97,6 +121,11 @@ export class AnimalRepository {
     if ('id_projeto' in animal && animal.id_projeto) {
       dbAnimal.id_project = animal.id_projeto;
       delete dbAnimal.id_projeto;
+    }
+
+    // Converter array de fotos para JSON se existir
+    if ('fotos' in animal && animal.fotos) {
+      dbAnimal.fotos = JSON.stringify(animal.fotos);
     }
 
     return dbAnimal;

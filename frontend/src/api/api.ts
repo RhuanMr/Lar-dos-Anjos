@@ -28,6 +28,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Não fazer nada com erro 429 (Too Many Requests) - deixar o componente tratar
+    if (error.response?.status === 429) {
+      return Promise.reject(error);
+    }
+    
     if (error.response?.status === 401) {
       // Token expirado ou inválido
       localStorage.removeItem('token');

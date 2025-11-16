@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
@@ -16,11 +16,20 @@ import { useProject } from '../../contexts/ProjectContext';
 export const Header = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const { selectedProject, projects, getUserProjects } = useProject();
+  const { selectedProject, projects, getUserProjects, loading } = useProject();
+  const hasLoadedProjects = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      getUserProjects();
+    // Só carregar projetos se autenticado, não estiver carregando, e ainda não carregou
+    if (isAuthenticated && !loading && !hasLoadedProjects.current) {
+      // Se já tem projetos, marcar como carregado
+      if (projects.length > 0) {
+        hasLoadedProjects.current = true;
+      } else {
+        // Se não tem projetos, carregar uma vez
+        hasLoadedProjects.current = true;
+        getUserProjects();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);

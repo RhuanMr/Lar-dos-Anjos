@@ -298,18 +298,16 @@ export const DonationsList = () => {
                             Ver Detalhes
                           </MenuItem>
                           {(isAdmin || isEmployee) && (
-                            <>
-                              <MenuItem onClick={() => handleEdit(donation.id)}>
-                                <Edit sx={{ mr: 1 }} fontSize="small" />
-                                Editar
-                              </MenuItem>
-                              {isAdmin && (
-                                <MenuItem onClick={() => handleDelete(donation.id)}>
-                                  <Delete sx={{ mr: 1 }} fontSize="small" />
-                                  Excluir
-                                </MenuItem>
-                              )}
-                            </>
+                            <MenuItem onClick={() => handleEdit(donation.id)}>
+                              <Edit sx={{ mr: 1 }} fontSize="small" />
+                              Editar
+                            </MenuItem>
+                          )}
+                          {isAdmin && (
+                            <MenuItem onClick={() => handleDelete(donation.id)}>
+                              <Delete sx={{ mr: 1 }} fontSize="small" />
+                              Excluir
+                            </MenuItem>
                           )}
                         </Menu>
                       </TableCell>

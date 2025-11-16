@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { Project, ProjectContextType } from '../types';
 import { api } from '../api/api';
 
@@ -8,6 +8,7 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const fetchingProjects = useRef(false);
 
   useEffect(() => {
     // Carregar projeto selecionado do localStorage
@@ -22,7 +23,23 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   }, []);
 
-  const getUserProjects = async () => {
+  const selectProject = useCallback((project: Project) => {
+    setSelectedProject(project);
+    localStorage.setItem('selectedProject', JSON.stringify(project));
+  }, []);
+
+  const clearProject = useCallback(() => {
+    setSelectedProject(null);
+    localStorage.removeItem('selectedProject');
+  }, []);
+
+  const getUserProjects = useCallback(async () => {
+    // Evitar múltiplas chamadas simultâneas
+    if (fetchingProjects.current) {
+      return;
+    }
+
+    fetchingProjects.current = true;
     try {
       setLoading(true);
       const response = await api.get<{ success: boolean; data: Project[] }>(
@@ -32,38 +49,44 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
         const loadedProjects = response.data.data;
         setProjects(loadedProjects);
 
-        const selectedStillExists = loadedProjects.some(
-          (project) => project.id === selectedProject?.id
-        );
+        setSelectedProject((currentSelected) => {
+          const selectedStillExists = loadedProjects.some(
+            (project) => project.id === currentSelected?.id
+          );
 
-        if (!selectedProject && loadedProjects.length === 1) {
-          selectProject(loadedProjects[0]);
-        } else if (selectedProject && !selectedStillExists) {
-          if (loadedProjects.length > 0) {
-            selectProject(loadedProjects[0]);
-          } else {
-            clearProject();
+          if (!currentSelected && loadedProjects.length === 1) {
+            const newProject = loadedProjects[0];
+            localStorage.setItem('selectedProject', JSON.stringify(newProject));
+            return newProject;
+          } else if (currentSelected && !selectedStillExists) {
+            if (loadedProjects.length > 0) {
+              const newProject = loadedProjects[0];
+              localStorage.setItem('selectedProject', JSON.stringify(newProject));
+              return newProject;
+            } else {
+              localStorage.removeItem('selectedProject');
+              return null;
+            }
           }
-        }
+          return currentSelected;
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao buscar projetos:', error);
-      setProjects([]);
-      clearProject();
+      // Tratar erro 429 - não limpar projetos, apenas marcar como não carregando
+      if (error.response?.status === 429) {
+        console.warn('Muitas requisições ao buscar projetos. Aguardando...');
+        // Manter projetos existentes se houver
+      } else {
+        setProjects([]);
+        clearProject();
+      }
     } finally {
       setLoading(false);
+      fetchingProjects.current = false;
     }
-  };
+  }, [selectProject, clearProject]);
 
-  const selectProject = (project: Project) => {
-    setSelectedProject(project);
-    localStorage.setItem('selectedProject', JSON.stringify(project));
-  };
-
-  const clearProject = () => {
-    setSelectedProject(null);
-    localStorage.removeItem('selectedProject');
-  };
 
   return (
     <ProjectContext.Provider

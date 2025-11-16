@@ -31,12 +31,15 @@ import {
 } from '@mui/icons-material';
 import { userService } from '../services/user.service';
 import { adopterService } from '../services/adopter.service';
+import { adoptionService } from '../services/adoption.service';
 import { useAuth } from '../contexts/AuthContext';
+import { useProject } from '../contexts/ProjectContext';
 import { User } from '../types/User';
 
 export const AdoptersList = () => {
   const navigate = useNavigate();
   const { hasRole } = useAuth();
+  const { selectedProject } = useProject();
   const [adopters, setAdopters] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,20 +50,47 @@ export const AdoptersList = () => {
   const isEmployee = hasRole('FUNCIONARIO');
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (selectedProject) {
+      loadData();
+    } else {
+      setAdopters([]);
+      setLoading(false);
+    }
+  }, [selectedProject]);
 
   const loadData = async () => {
+    if (!selectedProject) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      const response = await userService.getAll();
-      const allUsers = response.data || [];
-      // Filtrar apenas adotantes
-      const adoptersList = allUsers.filter((user) =>
-        user.roles.includes('ADOTANTE')
-      );
+      // Buscar adoções do projeto para identificar os adotantes
+      const adoptions = await adoptionService.getByProject(selectedProject.id);
+      
+      // Extrair IDs únicos dos adotantes
+      const adopterIds = [...new Set(adoptions.map(adoption => adoption.id_adotante))];
+      
+      if (adopterIds.length === 0) {
+        // Se não há adoções, não há adotantes ligados ao projeto
+        setAdopters([]);
+        setLoading(false);
+        return;
+      }
+
+      // Buscar os usuários correspondentes aos IDs dos adotantes
+      const adoptersList: User[] = [];
+      for (const adopterId of adopterIds) {
+        try {
+          const userResponse = await userService.getById(adopterId);
+          if (userResponse.data && userResponse.data.roles.includes('ADOTANTE')) {
+            adoptersList.push(userResponse.data);
+          }
+        } catch (err) {
+          console.error(`Erro ao buscar adotante ${adopterId}:`, err);
+        }
+      }
+
       setAdopters(adoptersList);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Erro ao carregar adotantes');

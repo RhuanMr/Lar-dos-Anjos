@@ -228,6 +228,7 @@ export const Dashboard = () => {
     onClick?: () => void;
   }) => (
     <Card
+      component="div"
       sx={{
         height: '100%',
         cursor: onClick ? 'pointer' : 'default',

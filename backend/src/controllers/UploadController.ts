@@ -206,6 +206,120 @@ export class UploadController {
   }
 
   /**
+   * Upload de múltiplas fotos de animal
+   * POST /api/upload/animal/:id/fotos
+   */
+  async uploadMultiplasFotosAnimal(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        const response: ApiResponse = {
+          success: false,
+          error: 'ID do animal é obrigatório',
+        };
+        res.status(400).json(response);
+        return;
+      }
+
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        const response: ApiResponse = {
+          success: false,
+          error: 'Nenhum arquivo foi enviado',
+        };
+        res.status(400).json(response);
+        return;
+      }
+
+      // Fazer upload de múltiplas imagens
+      const results = await this.uploadService.uploadMultiplasImagens(
+        'animais',
+        files,
+        id as string
+      );
+
+      // Adicionar URLs ao array de fotos do animal
+      const fotoUrls = results.map((r) => r.url);
+      await this.uploadService.adicionarFotosAoAnimal(id as string, fotoUrls);
+
+      const response: ApiResponse = {
+        success: true,
+        data: {
+          fotos: results,
+          animalId: id,
+          totalFotos: fotoUrls.length,
+        },
+        message: `${fotoUrls.length} foto(s) adicionada(s) com sucesso`,
+      };
+
+      res.status(200).json(response);
+    } catch (error: any) {
+      const response: ApiResponse = {
+        success: false,
+        error: error.message || 'Erro ao fazer upload das fotos do animal',
+      };
+      res.status(400).json(response);
+    }
+  }
+
+  /**
+   * Remove uma foto do array de fotos de um animal
+   * DELETE /api/upload/animal/:id/foto
+   */
+  async removerFotoAnimal(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { fotoUrl } = req.body;
+
+      if (!id) {
+        const response: ApiResponse = {
+          success: false,
+          error: 'ID do animal é obrigatório',
+        };
+        res.status(400).json(response);
+        return;
+      }
+
+      if (!fotoUrl) {
+        const response: ApiResponse = {
+          success: false,
+          error: 'URL da foto é obrigatória',
+        };
+        res.status(400).json(response);
+        return;
+      }
+
+      // Extrair o path do storage da URL
+      const urlObj = new URL(fotoUrl);
+      const pathParts = urlObj.pathname.split('/');
+      const bucketIndex = pathParts.findIndex((p) => p === 'animais');
+      if (bucketIndex === -1) {
+        throw new Error('URL inválida');
+      }
+      const filePath = pathParts.slice(bucketIndex + 1).join('/');
+
+      // Remover do array de fotos
+      await this.uploadService.removerFotoDoAnimal(id as string, fotoUrl);
+
+      // Deletar arquivo do storage
+      await this.uploadService.deletarImagem('animais', filePath);
+
+      const response: ApiResponse = {
+        success: true,
+        message: 'Foto removida com sucesso',
+      };
+
+      res.status(200).json(response);
+    } catch (error: any) {
+      const response: ApiResponse = {
+        success: false,
+        error: error.message || 'Erro ao remover foto do animal',
+      };
+      res.status(400).json(response);
+    }
+  }
+
+  /**
    * Deleta uma imagem
    * DELETE /api/upload/:bucket/:path
    */

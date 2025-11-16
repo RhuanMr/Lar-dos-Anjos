@@ -205,18 +205,16 @@ export const AdoptionsList = () => {
                           Ver Detalhes
                         </MenuItem>
                         {(isAdmin || isEmployee) && (
-                          <>
-                            <MenuItem onClick={() => handleEdit(adoption.id)}>
-                              <Edit sx={{ mr: 1 }} fontSize="small" />
-                              Editar
-                            </MenuItem>
-                            {isAdmin && (
-                              <MenuItem onClick={() => handleDelete(adoption.id)}>
-                                <Delete sx={{ mr: 1 }} fontSize="small" />
-                                Excluir
-                              </MenuItem>
-                            )}
-                          </>
+                          <MenuItem onClick={() => handleEdit(adoption.id)}>
+                            <Edit sx={{ mr: 1 }} fontSize="small" />
+                            Editar
+                          </MenuItem>
+                        )}
+                        {isAdmin && (
+                          <MenuItem onClick={() => handleDelete(adoption.id)}>
+                            <Delete sx={{ mr: 1 }} fontSize="small" />
+                            Excluir
+                          </MenuItem>
                         )}
                       </Menu>
                     </TableCell>

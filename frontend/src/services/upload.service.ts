@@ -98,6 +98,58 @@ export const uploadService = {
   },
 
   /**
+   * Upload de múltiplas fotos de animal
+   * @param animalId ID do animal
+   * @param files Array de arquivos de imagem
+   */
+  uploadAnimalPhotos: async (
+    animalId: string,
+    files: File[]
+  ): Promise<UploadResult[]> => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('fotos', file);
+    });
+
+    const response = await api.post<ApiResponse<{ fotos: UploadResult[]; totalFotos: number }>>(
+      `/upload/animal/${animalId}/fotos`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    if (!response.data.success || !response.data.data) {
+      throw new Error(response.data.error || 'Erro ao fazer upload das fotos');
+    }
+
+    return response.data.data.fotos;
+  },
+
+  /**
+   * Remove uma foto do array de fotos de um animal
+   * @param animalId ID do animal
+   * @param fotoUrl URL da foto a ser removida
+   */
+  removeAnimalPhoto: async (
+    animalId: string,
+    fotoUrl: string
+  ): Promise<void> => {
+    const response = await api.delete<ApiResponse>(
+      `/upload/animal/${animalId}/foto`,
+      {
+        data: { fotoUrl },
+      }
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error || 'Erro ao remover foto');
+    }
+  },
+
+  /**
    * Deletar uma imagem
    * @param bucket Nome do bucket (animais, usuarios, projetos)
    * @param path Caminho do arquivo no bucket
