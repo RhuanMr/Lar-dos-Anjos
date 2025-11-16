@@ -56,12 +56,20 @@ export class VoluntarioRepository {
     const mapped: any = {};
     if ('id_usuario' in data) mapped.id_user = data.id_usuario;
     if ('id_projeto' in data) mapped.id_project = data.id_projeto;
-    if ('servico' in data && data.servico !== undefined) mapped.servico = data.servico;
-    if ('frequencia' in data && data.frequencia !== undefined) {
+    if ('servico' in data && data.servico !== undefined && data.servico !== null && data.servico !== '') {
+      mapped.servico = data.servico;
+    }
+    if ('frequencia' in data && data.frequencia !== undefined && data.frequencia !== null) {
       mapped.frequencia = this.mapFrequenciaToDatabase(data.frequencia);
     }
-    if ('lt_data' in data && data.lt_data !== undefined) mapped.lt_data = data.lt_data;
-    if ('px_data' in data && data.px_data !== undefined) mapped.px_data = data.px_data;
+    if ('lt_data' in data && data.lt_data !== undefined && data.lt_data !== null && data.lt_data !== '') {
+      mapped.lt_data = data.lt_data;
+    }
+    // px_data pode não existir na tabela, então só incluímos se tiver valor válido
+    // Se a coluna não existir no banco, não será incluída no insert
+    if ('px_data' in data && data.px_data !== undefined && data.px_data !== null && data.px_data !== '') {
+      mapped.px_data = data.px_data;
+    }
     return mapped;
   }
 
@@ -72,7 +80,7 @@ export class VoluntarioRepository {
       .order('id_user', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return (data || []).map(this.mapFromDatabase);
+    return (data || []).map((item) => this.mapFromDatabase(item));
   }
 
   async findByProjeto(projetoId: string): Promise<Voluntario[]> {
@@ -82,7 +90,7 @@ export class VoluntarioRepository {
       .eq('id_project', projetoId);
 
     if (error) throw new Error(error.message);
-    return (data || []).map(this.mapFromDatabase);
+    return (data || []).map((item) => this.mapFromDatabase(item));
   }
 
   async findByUsuario(usuarioId: string): Promise<Voluntario[]> {
@@ -92,7 +100,7 @@ export class VoluntarioRepository {
       .eq('id_user', usuarioId);
 
     if (error) throw new Error(error.message);
-    return (data || []).map(this.mapFromDatabase);
+    return (data || []).map((item) => this.mapFromDatabase(item));
   }
 
   async findByUsuarioAndProjeto(
@@ -123,13 +131,48 @@ export class VoluntarioRepository {
     }
 
     const mappedData = this.mapToDatabase(voluntario);
+    
+    // Remover campos undefined/null/vazios para evitar problemas com colunas que podem não existir
+    // Especialmente px_data que pode não existir na tabela
+    const cleanData: any = {};
+    Object.keys(mappedData).forEach(key => {
+      const value = mappedData[key];
+      // Não incluir campos vazios, undefined ou null
+      // Especialmente importante para px_data que é opcional e pode não existir na tabela
+      if (value !== undefined && value !== null && value !== '') {
+        cleanData[key] = value;
+      }
+    });
+
+    // Se px_data estiver presente mas vazio, remover explicitamente
+    if ('px_data' in cleanData && (!cleanData.px_data || cleanData.px_data === '')) {
+      delete cleanData.px_data;
+    }
+
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
-      .insert([mappedData])
+      .insert([cleanData])
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      // Se o erro for sobre coluna px_data não encontrada, tentar novamente sem ela
+      if (error.message.includes('px_data') || 
+          (error.message.includes('column') && error.message.includes('px_data'))) {
+        const dataWithoutPxData = { ...cleanData };
+        delete dataWithoutPxData.px_data;
+        
+        const { data: retryData, error: retryError } = await supabase
+          .from(this.TABLE_NAME)
+          .insert([dataWithoutPxData])
+          .select()
+          .single();
+        
+        if (retryError) throw new Error(retryError.message);
+        return this.mapFromDatabase(retryData);
+      }
+      throw new Error(error.message);
+    }
     return this.mapFromDatabase(data);
   }
 
@@ -139,15 +182,51 @@ export class VoluntarioRepository {
     voluntario: VoluntarioUpdate
   ): Promise<Voluntario> {
     const mappedData = this.mapToDatabase(voluntario);
+    
+    // Remover campos undefined/null/vazios para evitar problemas com colunas que podem não existir
+    // Especialmente px_data que é opcional e pode não existir na tabela
+    const cleanData: any = {};
+    Object.keys(mappedData).forEach(key => {
+      const value = mappedData[key];
+      // Não incluir campos vazios, undefined ou null
+      if (value !== undefined && value !== null && value !== '') {
+        cleanData[key] = value;
+      }
+    });
+
+    // Se px_data estiver presente mas vazio, remover explicitamente
+    if ('px_data' in cleanData && (!cleanData.px_data || cleanData.px_data === '')) {
+      delete cleanData.px_data;
+    }
+
     const { data, error } = await supabase
       .from(this.TABLE_NAME)
-      .update(mappedData)
+      .update(cleanData)
       .eq('id_user', usuarioId)
       .eq('id_project', projetoId)
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      // Se o erro for sobre coluna px_data não encontrada, tentar novamente sem ela
+      if (error.message.includes('px_data') || 
+          (error.message.includes('column') && error.message.includes('px_data'))) {
+        const dataWithoutPxData = { ...cleanData };
+        delete dataWithoutPxData.px_data;
+        
+        const { data: retryData, error: retryError } = await supabase
+          .from(this.TABLE_NAME)
+          .update(dataWithoutPxData)
+          .eq('id_user', usuarioId)
+          .eq('id_project', projetoId)
+          .select()
+          .single();
+        
+        if (retryError) throw new Error(retryError.message);
+        return this.mapFromDatabase(retryData);
+      }
+      throw new Error(error.message);
+    }
     return this.mapFromDatabase(data);
   }
 

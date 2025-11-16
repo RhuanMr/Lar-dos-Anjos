@@ -14,10 +14,12 @@ import {
   MenuItem,
   Avatar,
   IconButton,
+  InputAdornment,
 } from '@mui/material';
 import { Edit, Save, ArrowBack, PhotoCamera } from '@mui/icons-material';
 import { userService, UserUpdate } from '../services/user.service';
 import { uploadService } from '../services/upload.service';
+import { cepService } from '../services/cep.service';
 import { useAuth } from '../contexts/AuthContext';
 import { User } from '../types';
 import { UFS } from '../constants/ufs';
@@ -33,6 +35,7 @@ export const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [buscandoCep, setBuscandoCep] = useState(false);
 
   const [form, setForm] = useState({
     nome: '',
@@ -55,6 +58,44 @@ export const Profile = () => {
       setError('Usuário não encontrado');
     }
   }, [currentUser]);
+
+  // Buscar endereço automaticamente quando CEP tiver 8 dígitos
+  useEffect(() => {
+    const buscarEnderecoPorCep = async () => {
+      // Só buscar se estiver editando e o CEP tiver 8 dígitos
+      if (!editing || buscandoCep) return;
+      
+      const cepLimpo = form.cep.replace(/\D/g, '');
+      if (cepLimpo.length === 8 && cepService.validarCep(cepLimpo)) {
+        setBuscandoCep(true);
+        try {
+          const endereco = await cepService.buscarCep(cepLimpo);
+          if (endereco) {
+            // Preencher campos automaticamente
+            setForm((prev) => ({
+              ...prev,
+              endereco: endereco.endereco,
+              bairro: endereco.bairro,
+              cidade: endereco.cidade,
+              uf: endereco.uf,
+              // Manter complemento e numero se já estiverem preenchidos
+            }));
+          } else {
+            setError('CEP não encontrado');
+          }
+        } catch (err: any) {
+          console.error('Erro ao buscar CEP:', err);
+          // Não mostrar erro para o usuário, apenas logar
+        } finally {
+          setBuscandoCep(false);
+        }
+      }
+    };
+
+    // Debounce: aguardar 500ms após o usuário parar de digitar
+    const timeoutId = setTimeout(buscarEnderecoPorCep, 500);
+    return () => clearTimeout(timeoutId);
+  }, [form.cep, editing]);
 
   const loadUser = async (userId: string) => {
     try {
@@ -414,8 +455,15 @@ export const Profile = () => {
                         handleChange('cep', digits);
                       }
                     }}
-                    disabled={!editing || saving}
-                    helperText="Apenas números"
+                    disabled={!editing || saving || buscandoCep}
+                    helperText={buscandoCep ? 'Buscando endereço...' : 'Apenas números (busca automática)'}
+                    InputProps={{
+                      endAdornment: buscandoCep ? (
+                        <InputAdornment position="end">
+                          <CircularProgress size={20} />
+                        </InputAdornment>
+                      ) : null,
+                    }}
                   />
                 </Grid>
 

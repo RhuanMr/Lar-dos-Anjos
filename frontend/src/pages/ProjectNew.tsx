@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -10,9 +10,11 @@ import {
   Alert,
   CircularProgress,
   MenuItem,
+  InputAdornment,
 } from '@mui/material';
 import { ArrowBack, Save } from '@mui/icons-material';
 import { projectService, ProjectCreate } from '../services/project.service';
+import { cepService } from '../services/cep.service';
 import { useAuth } from '../contexts/AuthContext';
 import { UFS } from '../constants/ufs';
 
@@ -21,6 +23,7 @@ export const ProjectNew = () => {
   const { hasRole } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [buscandoCep, setBuscandoCep] = useState(false);
 
   // Campos do formulário
   const [nome, setNome] = useState('');
@@ -36,6 +39,40 @@ export const ProjectNew = () => {
 
   // Verificar se é SUPERADMIN
   const isSuperAdmin = hasRole('SUPERADMIN');
+
+  // Buscar endereço automaticamente quando CEP tiver 8 dígitos
+  useEffect(() => {
+    const buscarEnderecoPorCep = async () => {
+      if (buscandoCep || loading) return;
+      
+      const cepLimpo = cep.replace(/\D/g, '');
+      if (cepLimpo.length === 8 && cepService.validarCep(cepLimpo)) {
+        setBuscandoCep(true);
+        try {
+          const enderecoEncontrado = await cepService.buscarCep(cepLimpo);
+          if (enderecoEncontrado) {
+            // Preencher campos automaticamente
+            setEndereco(enderecoEncontrado.endereco);
+            setBairro(enderecoEncontrado.bairro);
+            setCidade(enderecoEncontrado.cidade);
+            setUf(enderecoEncontrado.uf);
+            // Manter complemento e numero se já estiverem preenchidos
+          } else {
+            setError('CEP não encontrado');
+          }
+        } catch (err: any) {
+          console.error('Erro ao buscar CEP:', err);
+          // Não mostrar erro para o usuário, apenas logar
+        } finally {
+          setBuscandoCep(false);
+        }
+      }
+    };
+
+    // Debounce: aguardar 500ms após o usuário parar de digitar
+    const timeoutId = setTimeout(buscarEnderecoPorCep, 500);
+    return () => clearTimeout(timeoutId);
+  }, [cep]);
 
   if (!isSuperAdmin) {
     return (
@@ -229,8 +266,15 @@ export const ProjectNew = () => {
                     setCep(value);
                   }
                 }}
-                helperText="Apenas números (8 dígitos)"
-                disabled={loading}
+                helperText={buscandoCep ? 'Buscando endereço...' : 'Apenas números (busca automática)'}
+                disabled={loading || buscandoCep}
+                InputProps={{
+                  endAdornment: buscandoCep ? (
+                    <InputAdornment position="end">
+                      <CircularProgress size={20} />
+                    </InputAdornment>
+                  ) : null,
+                }}
               />
             </Grid>
 

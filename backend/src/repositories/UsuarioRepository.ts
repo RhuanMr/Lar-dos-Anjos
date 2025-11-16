@@ -5,6 +5,21 @@ import { EnderecoRepository } from './EnderecoRepository';
 export class UsuarioRepository {
   private enderecoRepository = new EnderecoRepository();
 
+  /**
+   * Verifica se um usuário é um doador anônimo
+   * Doadores anônimos são identificados por:
+   * - nome = 'Doação Anônima'
+   * - email que começa com 'anonimo_' e termina com '@temp.com'
+   * - cpf = '00000000000'
+   */
+  private isDoadorAnonimo(usuario: any): boolean {
+    const nomeAnonimo = usuario.nome === 'Doação Anônima';
+    const emailAnonimo = usuario.email?.startsWith('anonimo_') && usuario.email?.endsWith('@temp.com');
+    const cpfAnonimo = usuario.cpf === '00000000000';
+    
+    return nomeAnonimo || emailAnonimo || cpfAnonimo;
+  }
+
   async findAll(): Promise<Usuario[]> {
     try {
       console.log('Buscando usuários na tabela users...');
@@ -66,14 +81,21 @@ export class UsuarioRepository {
         })
       );
 
+      // Filtrar doadores anônimos da lista
+      const usuariosFiltrados = usuariosComEndereco.filter(
+        (usuario) => !this.isDoadorAnonimo(usuario)
+      );
+
       // Ordenar manualmente no código se necessário
-      usuariosComEndereco.sort((a, b) => {
+      usuariosFiltrados.sort((a, b) => {
         const nomeA = (a.nome || '').trim();
         const nomeB = (b.nome || '').trim();
         return nomeA.localeCompare(nomeB, 'pt-BR');
       });
 
-      return usuariosComEndereco as Usuario[];
+      console.log(`✓ ${usuariosFiltrados.length} usuários retornados (${usuariosComEndereco.length - usuariosFiltrados.length} doadores anônimos filtrados)`);
+
+      return usuariosFiltrados as Usuario[];
     } catch (err) {
       console.error('Erro no findAll do UsuarioRepository:', err);
       throw err;

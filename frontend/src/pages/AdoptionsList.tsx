@@ -31,6 +31,7 @@ import { adoptionService } from '../services/adoption.service';
 import { useProject } from '../contexts/ProjectContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Adoption } from '../types/Adoption';
+import { formatDate } from '../utils/dateUtils';
 
 export const AdoptionsList = () => {
   const navigate = useNavigate();
@@ -107,11 +108,6 @@ export const AdoptionsList = () => {
       : true;
   });
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
-  };
 
   if (loading) {
     return (

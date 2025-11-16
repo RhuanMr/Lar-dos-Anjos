@@ -191,6 +191,18 @@ export const EmployeeVolunteerNew = () => {
           observacao: observacaoFunc || undefined,
         };
         await employeeService.create(data);
+        
+        // Se o funcionário tem privilégios, redirecionar para página de compartilhamento do link de senha
+        if (privilegios) {
+          navigate('/share-password-link', {
+            state: {
+              userId: selectedUser.id,
+              userName: selectedUser.nome,
+              userEmail: selectedUser.email,
+            },
+          });
+          return;
+        }
       } else {
         const data: VolunteerCreate = {
           id_usuario: selectedUser.id,
@@ -198,7 +210,8 @@ export const EmployeeVolunteerNew = () => {
           servico: servico || undefined,
           frequencia,
           lt_data: ltData || undefined,
-          px_data: pxData || undefined,
+          // px_data é opcional - só incluir se tiver valor
+          ...(pxData && pxData.trim() ? { px_data: pxData } : {}),
         };
         await volunteerService.create(data);
       }
@@ -237,7 +250,7 @@ export const EmployeeVolunteerNew = () => {
       )}
 
       <Paper sx={{ p: 3 }}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <Grid container spacing={3}>
             {/* Tipo */}
             <Grid item xs={12}>
@@ -315,9 +328,9 @@ export const EmployeeVolunteerNew = () => {
                       <TextField
                         fullWidth
                         label="Nome"
-                        required
                         value={newUserNome}
                         onChange={(e) => setNewUserNome(e.target.value)}
+                        required={showNewUserForm}
                       />
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -325,16 +338,15 @@ export const EmployeeVolunteerNew = () => {
                         fullWidth
                         label="Email"
                         type="email"
-                        required
                         value={newUserEmail}
                         onChange={(e) => setNewUserEmail(e.target.value)}
+                        required={showNewUserForm}
                       />
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
                         label="CPF"
-                        required
                         value={newUserCpf}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '');
@@ -348,6 +360,7 @@ export const EmployeeVolunteerNew = () => {
                             ? 'CPF deve ter exatamente 11 dígitos'
                             : 'Apenas números (11 dígitos)'
                         }
+                        required={showNewUserForm}
                       />
                     </Grid>
                     <Grid item xs={12} md={6}>
