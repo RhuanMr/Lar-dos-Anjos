@@ -23,15 +23,18 @@ export class UsuarioService {
   }
 
   async criar(dados: UsuarioCreate): Promise<Usuario> {
-    // Validar email e CPF únicos
+    // Validar email único
     const usuarioEmail = await this.repository.findByEmail(dados.email);
     if (usuarioEmail) {
       throw new Error('Email já cadastrado');
     }
 
-    const usuarioCpf = await this.repository.findByCpf(dados.cpf);
-    if (usuarioCpf) {
-      throw new Error('CPF já cadastrado');
+    // Validar CPF único apenas se fornecido
+    if (dados.cpf) {
+      const usuarioCpf = await this.repository.findByCpf(dados.cpf);
+      if (usuarioCpf) {
+        throw new Error('CPF já cadastrado');
+      }
     }
 
     // Validar limite de SuperAdmins

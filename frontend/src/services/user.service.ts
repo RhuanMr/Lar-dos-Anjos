@@ -4,7 +4,7 @@ import { User, UserUpdate } from '../types';
 export interface UserCreate {
   nome: string;
   email: string;
-  cpf: string;
+  cpf?: string;
   telefone?: string;
   data_nascimento?: string;
   genero?: 'M' | 'F' | 'Outro';

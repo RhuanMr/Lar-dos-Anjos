@@ -125,15 +125,19 @@ export const DonationNew = () => {
   }, [selectedDonor, fuseDonors, donors]);
 
   const handleCreateDonor = async () => {
-    if (!newDonorNome.trim() || !newDonorEmail.trim() || !newDonorCpf.trim()) {
-      setError('Nome, email e CPF são obrigatórios');
+    if (!newDonorNome.trim() || !newDonorEmail.trim()) {
+      setError('Nome e email são obrigatórios');
       return;
     }
 
-    const cpfLimpo = newDonorCpf.replace(/\D/g, '');
-    if (cpfLimpo.length !== 11) {
-      setError('CPF deve ter 11 dígitos');
-      return;
+    // Validar CPF apenas se fornecido
+    let cpfLimpo: string | undefined = undefined;
+    if (newDonorCpf.trim()) {
+      cpfLimpo = newDonorCpf.replace(/\D/g, '');
+      if (cpfLimpo.length !== 11) {
+        setError('CPF deve ter 11 dígitos');
+        return;
+      }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -150,7 +154,7 @@ export const DonationNew = () => {
       const userData: UserCreate = {
         nome: newDonorNome.trim(),
         email: newDonorEmail.trim(),
-        cpf: cpfLimpo,
+        cpf: cpfLimpo || undefined,
         telefone: newDonorTelefone.replace(/\D/g, '') || undefined,
         roles: ['DOADOR'],
       };

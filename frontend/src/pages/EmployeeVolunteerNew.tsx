@@ -113,15 +113,19 @@ export const EmployeeVolunteerNew = () => {
   };
 
   const handleCreateUser = async () => {
-    if (!newUserNome.trim() || !newUserEmail.trim() || !newUserCpf.trim()) {
-      setError('Preencha nome, email e CPF');
+    if (!newUserNome.trim() || !newUserEmail.trim()) {
+      setError('Preencha nome e email');
       return;
     }
 
-    const cpfLimpo = newUserCpf.replace(/\D/g, '');
-    if (cpfLimpo.length !== 11) {
-      setError('CPF deve ter exatamente 11 dígitos');
-      return;
+    // Validar CPF apenas se fornecido
+    let cpfLimpo: string | undefined = undefined;
+    if (newUserCpf.trim()) {
+      cpfLimpo = newUserCpf.replace(/\D/g, '');
+      if (cpfLimpo.length !== 11) {
+        setError('CPF deve ter exatamente 11 dígitos');
+        return;
+      }
     }
 
     // Validação básica de email
@@ -138,7 +142,7 @@ export const EmployeeVolunteerNew = () => {
       const userData: UserCreate = {
         nome: newUserNome.trim(),
         email: newUserEmail.trim().toLowerCase(),
-        cpf: cpfLimpo,
+        cpf: cpfLimpo || undefined,
         telefone: newUserTelefone.replace(/\D/g, '') || undefined,
         roles: type === 'employee' ? ['FUNCIONARIO'] : ['VOLUNTARIO'],
       };
@@ -346,7 +350,7 @@ export const EmployeeVolunteerNew = () => {
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
-                        label="CPF"
+                        label="CPF (opcional)"
                         value={newUserCpf}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '');
@@ -358,9 +362,8 @@ export const EmployeeVolunteerNew = () => {
                         helperText={
                           newUserCpf.length > 0 && newUserCpf.replace(/\D/g, '').length !== 11
                             ? 'CPF deve ter exatamente 11 dígitos'
-                            : 'Apenas números (11 dígitos)'
+                            : 'Apenas números (11 dígitos) - Opcional'
                         }
-                        required={showNewUserForm}
                       />
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -388,7 +391,7 @@ export const EmployeeVolunteerNew = () => {
                           creatingUser ||
                           !newUserNome.trim() ||
                           !newUserEmail.trim() ||
-                          newUserCpf.replace(/\D/g, '').length !== 11
+                          (newUserCpf.trim() && newUserCpf.replace(/\D/g, '').length !== 11)
                         }
                         startIcon={creatingUser ? <CircularProgress size={20} /> : <PersonAdd />}
                       >

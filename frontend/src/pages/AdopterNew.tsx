@@ -86,15 +86,19 @@ export const AdopterNew = () => {
   }, [selectedUser, fuse, users]);
 
   const handleCreateUser = async () => {
-    if (!newUserNome.trim() || !newUserEmail.trim() || !newUserCpf.trim()) {
-      setError('Nome, email e CPF são obrigatórios');
+    if (!newUserNome.trim() || !newUserEmail.trim()) {
+      setError('Nome e email são obrigatórios');
       return;
     }
 
-    const cpfLimpo = newUserCpf.replace(/\D/g, '');
-    if (cpfLimpo.length !== 11) {
-      setError('CPF deve ter 11 dígitos');
-      return;
+    // Validar CPF apenas se fornecido
+    let cpfLimpo: string | undefined = undefined;
+    if (newUserCpf.trim()) {
+      cpfLimpo = newUserCpf.replace(/\D/g, '');
+      if (cpfLimpo.length !== 11) {
+        setError('CPF deve ter 11 dígitos');
+        return;
+      }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -110,7 +114,7 @@ export const AdopterNew = () => {
       const userData: UserCreate = {
         nome: newUserNome.trim(),
         email: newUserEmail.trim().toLowerCase(),
-        cpf: cpfLimpo,
+        cpf: cpfLimpo || undefined,
         telefone: newUserTelefone.replace(/\D/g, '') || undefined,
         roles: ['ADOTANTE'],
       };
@@ -235,7 +239,7 @@ export const AdopterNew = () => {
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
-                        label="CPF *"
+                        label="CPF"
                         value={newUserCpf}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '');

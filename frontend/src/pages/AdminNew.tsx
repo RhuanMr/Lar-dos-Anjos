@@ -133,14 +133,19 @@ export const AdminNew = () => {
   }, [selectedUser, fuse, users]);
 
   const handleCreateUser = async () => {
-    if (!newUserNome.trim() || !newUserEmail.trim() || !newUserCpf.trim()) {
-      setError('Nome, email e CPF são obrigatórios');
+    if (!newUserNome.trim() || !newUserEmail.trim()) {
+      setError('Nome e email são obrigatórios');
       return;
     }
 
-    if (newUserCpf.replace(/\D/g, '').length !== 11) {
-      setError('CPF deve ter 11 dígitos');
-      return;
+    // Validar CPF apenas se fornecido
+    let cpfLimpo: string | undefined = undefined;
+    if (newUserCpf.trim()) {
+      cpfLimpo = newUserCpf.replace(/\D/g, '');
+      if (cpfLimpo.length !== 11) {
+        setError('CPF deve ter 11 dígitos');
+        return;
+      }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -156,7 +161,7 @@ export const AdminNew = () => {
       const userData: UserCreate = {
         nome: newUserNome.trim(),
         email: newUserEmail.trim().toLowerCase(),
-        cpf: newUserCpf.replace(/\D/g, ''),
+        cpf: cpfLimpo || undefined,
         telefone: newUserTelefone.trim().replace(/\D/g, '') || undefined,
         roles: [],
       };
@@ -341,7 +346,7 @@ export const AdminNew = () => {
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
-                        label="CPF *"
+                        label="CPF"
                         value={newUserCpf}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '');
@@ -442,8 +447,9 @@ export const AdminNew = () => {
                         setError('Email é obrigatório');
                         return;
                       }
-                      if (!newUserCpf.trim()) {
-                        setError('CPF é obrigatório');
+                      // Validar CPF apenas se fornecido
+                      if (newUserCpf.trim() && newUserCpf.replace(/\D/g, '').length !== 11) {
+                        setError('CPF deve ter 11 dígitos');
                         return;
                       }
 

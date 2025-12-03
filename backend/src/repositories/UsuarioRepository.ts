@@ -171,9 +171,17 @@ export class UsuarioRepository {
     // Copiar apenas campos permitidos
     for (const campo of camposPermitidos) {
       if (campo in usuario && usuario[campo] !== undefined) {
-        camposValidos[campo] = usuario[campo];
+        // Para CPF, permitir string vazia ou null também
+        if (campo === 'cpf' && (usuario[campo] === '' || usuario[campo] === null)) {
+          camposValidos[campo] = null;
+        } else {
+          camposValidos[campo] = usuario[campo];
+        }
       }
     }
+    
+    // Se CPF não foi fornecido, não incluir no insert (será NULL no banco após alterar constraint)
+    // Não precisamos definir explicitamente como null aqui, pois o banco permitirá NULL após a migração
     
     const { data, error } = await supabase
       .from('users')

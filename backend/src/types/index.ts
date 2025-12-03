@@ -46,7 +46,7 @@ export interface Usuario {
 export interface UsuarioCreate {
   nome: string;
   email: string;
-  cpf: string;
+  cpf?: string;
   telefone?: string;
   data_nascimento?: string;
   genero?: 'M' | 'F' | 'Outro';
