@@ -56,6 +56,7 @@ export const DonationNew = () => {
   const [newDonorCpf, setNewDonorCpf] = useState('');
   const [newDonorTelefone, setNewDonorTelefone] = useState('');
   const [newDonorObservacao, setNewDonorObservacao] = useState('');
+  const [newDonorFrequencia, setNewDonorFrequencia] = useState<'mensal' | 'pontual' | 'eventual' | ''>('');
 
   // Data
   const [donors, setDonors] = useState<User[]>([]);
@@ -168,6 +169,7 @@ export const DonationNew = () => {
           id_usuario: newUser.id,
           id_projeto: selectedProject.id,
           observacao: newDonorObservacao.trim() || undefined,
+          frequencia: newDonorFrequencia ? (newDonorFrequencia as 'mensal' | 'pontual' | 'eventual') : undefined,
         });
       }
 
@@ -180,6 +182,7 @@ export const DonationNew = () => {
       setNewDonorCpf('');
       setNewDonorTelefone('');
       setNewDonorObservacao('');
+      setNewDonorFrequencia('');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Erro ao criar doador');
     } finally {
@@ -343,7 +346,7 @@ export const DonationNew = () => {
 
             {!isAnonymous && (
               <>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={8}>
                   <Autocomplete
                     options={filteredDonors}
                     getOptionLabel={(option) =>
@@ -376,7 +379,7 @@ export const DonationNew = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <Button
                     fullWidth
                     variant="outlined"
@@ -420,7 +423,7 @@ export const DonationNew = () => {
                         <Grid item xs={12} md={6}>
                           <TextField
                             fullWidth
-                            label="CPF"
+                            label="CPF (opcional)"
                             value={newDonorCpf}
                             onChange={(e) => {
                               const value = e.target.value.replace(/\D/g, '');
@@ -429,7 +432,7 @@ export const DonationNew = () => {
                               }
                             }}
                             inputProps={{ maxLength: 11 }}
-                            required
+                            helperText="Apenas números (11 dígitos) - Opcional"
                           />
                         </Grid>
                         <Grid item xs={12} md={6}>
@@ -444,6 +447,25 @@ export const DonationNew = () => {
                               }
                             }}
                           />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            fullWidth
+                            select
+                            label="Frequência"
+                            value={newDonorFrequencia}
+                            onChange={(e) =>
+                              setNewDonorFrequencia(e.target.value as 'mensal' | 'pontual' | 'eventual' | '')
+                            }
+                            helperText="Selecione a frequência de doação (opcional)"
+                          >
+                            <MenuItem value="">
+                              <em>Selecione...</em>
+                            </MenuItem>
+                            <MenuItem value="mensal">Mensal</MenuItem>
+                            <MenuItem value="pontual">Pontual</MenuItem>
+                            <MenuItem value="eventual">Eventual</MenuItem>
+                          </TextField>
                         </Grid>
                         <Grid item xs={12}>
                           <TextField
