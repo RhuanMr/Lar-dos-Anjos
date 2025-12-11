@@ -6,13 +6,13 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   InputAdornment,
   IconButton,
   Divider,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Save, Visibility, VisibilityOff } from '@mui/icons-material';
 import { userService } from '../services/user.service';
 import { useAuth } from '../contexts/AuthContext';

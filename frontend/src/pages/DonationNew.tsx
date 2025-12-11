@@ -6,7 +6,6 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   Autocomplete,
@@ -16,6 +15,7 @@ import {
   Checkbox,
   Collapse,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import {
   ArrowBack,
   Save,

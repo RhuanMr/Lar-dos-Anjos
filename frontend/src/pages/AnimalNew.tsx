@@ -6,11 +6,11 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   MenuItem,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Save } from '@mui/icons-material';
 import { animalService } from '../services/animal.service';
 import { useProject } from '../contexts/ProjectContext';

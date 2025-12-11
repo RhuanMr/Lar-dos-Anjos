@@ -6,7 +6,6 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   MenuItem,
@@ -20,6 +19,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Save, Edit, Pets, Delete, Done } from '@mui/icons-material';
 import { animalService } from '../services/animal.service';
 import { vaccineService } from '../services/vaccine.service';

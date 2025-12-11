@@ -10,7 +10,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid,
   Alert,
   CircularProgress,
   Autocomplete,
@@ -18,6 +17,7 @@ import {
   Switch,
   Collapse,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Save, PersonAdd, ExpandLess } from '@mui/icons-material';
 import Fuse from 'fuse.js';
 import { employeeService } from '../services/employee.service';
@@ -391,7 +391,7 @@ export const EmployeeVolunteerNew = () => {
                           creatingUser ||
                           !newUserNome.trim() ||
                           !newUserEmail.trim() ||
-                          (newUserCpf.trim() && newUserCpf.replace(/\D/g, '').length !== 11)
+                          (newUserCpf.trim() !== '' && newUserCpf.replace(/\D/g, '').length !== 11)
                         }
                         startIcon={creatingUser ? <CircularProgress size={20} /> : <PersonAdd />}
                       >

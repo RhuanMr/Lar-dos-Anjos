@@ -5,7 +5,6 @@ import {
   Typography,
   Paper,
   TextField,
-  Grid,
   Button,
   Alert,
   Divider,
@@ -16,11 +15,12 @@ import {
   FormControlLabel,
   InputAdornment,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Edit, Save } from '@mui/icons-material';
 import { userService } from '../services/user.service';
 import { cepService } from '../services/cep.service';
 import { useAuth } from '../contexts/AuthContext';
-import { User, UserUpdate } from '../types';
+import { User, UserUpdate, UserGender } from '../types';
 import { UFS } from '../constants/ufs';
 
 export const UserDetails = () => {
@@ -112,7 +112,7 @@ export const UserDetails = () => {
 
       const response = await userService.getById(userId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Usuário não encontrado');
+        throw new Error('Usuário não encontrado');
       }
       const data = response.data;
       setUser(data);
@@ -178,7 +178,7 @@ export const UserDetails = () => {
         email: form.email.trim().toLowerCase(),
         telefone: form.telefone ? form.telefone.replace(/\D/g, '') : undefined,
         data_nascimento: form.data_nascimento || undefined,
-        genero: form.genero || undefined,
+        genero: (form.genero as UserGender) || undefined,
         endereco: form.endereco || undefined,
         numero: form.numero || undefined,
         complemento: form.complemento || undefined,
@@ -191,7 +191,7 @@ export const UserDetails = () => {
 
       const response = await userService.update(id, payload);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Erro ao atualizar usuário');
+        throw new Error(response.message || 'Erro ao atualizar usuário');
       }
       setUser(response.data);
       setSuccess('Usuário atualizado com sucesso');

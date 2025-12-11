@@ -5,7 +5,6 @@ import {
   Typography,
   Paper,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   Card,
@@ -14,6 +13,7 @@ import {
   Chip,
   Avatar,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack } from '@mui/icons-material';
 import { userService } from '../services/user.service';
 import { adoptionService } from '../services/adoption.service';

@@ -6,12 +6,12 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   Autocomplete,
   Collapse,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Save, PersonAdd, ExpandLess, ExpandMore } from '@mui/icons-material';
 import Fuse from 'fuse.js';
 import { userService, UserCreate } from '../services/user.service';

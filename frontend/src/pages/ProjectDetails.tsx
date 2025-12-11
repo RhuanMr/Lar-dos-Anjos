@@ -6,7 +6,6 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   Divider,
   Chip,
@@ -14,6 +13,7 @@ import {
   MenuItem,
   InputAdornment,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Edit, Save } from '@mui/icons-material';
 import { projectService, ProjectCreate } from '../services/project.service';
 import { cepService } from '../services/cep.service';
@@ -136,7 +136,7 @@ export const ProjectDetails = () => {
       setError(null);
       const response = await projectService.getById(projectId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Projeto não encontrado');
+        throw new Error('Projeto não encontrado');
       }
       const data = response.data;
       setProject(data);
@@ -234,7 +234,7 @@ export const ProjectDetails = () => {
 
       const response = await projectService.update(routeProjectId, payload);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Erro ao atualizar projeto');
+        throw new Error(response.message || 'Erro ao atualizar projeto');
       }
       const updated = response.data;
       setProject(updated);
@@ -392,12 +392,14 @@ export const ProjectDetails = () => {
                     onPhotosChange={async (photos) => {
                       // Atualizar projeto com nova foto
                       try {
-                        const updated = await projectService.update(routeProjectId, { foto: photos[0] || undefined });
-                        setProject(updated);
-                        if (!id && selectedProject && updated.id === selectedProject.id) {
-                          const { endereco, ...rest } = updated;
-                          selectProject(rest);
-                          await getUserProjects();
+                        const response = await projectService.update(routeProjectId, { foto: photos[0] || undefined });
+                        if (response.success && response.data) {
+                          setProject(response.data);
+                          if (!id && selectedProject && response.data.id === selectedProject.id) {
+                            const { endereco, ...rest } = response.data;
+                            selectProject(rest);
+                            await getUserProjects();
+                          }
                         }
                       } catch (err: any) {
                         setError(err.response?.data?.error || err.message || 'Erro ao atualizar foto');

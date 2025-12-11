@@ -9,9 +9,9 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Grid,
   MenuItem,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { userService, UserCreate } from '../services/user.service';
 import { adopterService } from '../services/adopter.service';
 import { UFS } from '../constants/ufs';

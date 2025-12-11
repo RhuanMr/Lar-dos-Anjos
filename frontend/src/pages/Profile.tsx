@@ -5,7 +5,6 @@ import {
   Typography,
   Paper,
   TextField,
-  Grid,
   Button,
   Alert,
   Divider,
@@ -16,6 +15,7 @@ import {
   IconButton,
   InputAdornment,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { Edit, Save, ArrowBack, PhotoCamera } from '@mui/icons-material';
 import { userService } from '../services/user.service';
 import { UserUpdate } from '../types';
@@ -105,7 +105,7 @@ export const Profile = () => {
 
       const response = await userService.getById(userId);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Usuário não encontrado');
+        throw new Error('Usuário não encontrado');
       }
       const data = response.data;
       setUser(data);
@@ -175,7 +175,7 @@ export const Profile = () => {
 
       const response = await userService.update(user.id, payload);
       if (!response.success || !response.data) {
-        throw new Error(response.error || 'Erro ao atualizar perfil');
+        throw new Error(response.message || 'Erro ao atualizar perfil');
       }
       const updatedUser = response.data;
       setUser(updatedUser);

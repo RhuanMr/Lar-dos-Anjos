@@ -6,13 +6,13 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   Autocomplete,
   MenuItem,
   Divider,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Save } from '@mui/icons-material';
 import Fuse from 'fuse.js';
 import { adoptionService, adoptionUpdateService } from '../services/adoption.service';

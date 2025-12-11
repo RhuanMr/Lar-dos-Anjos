@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -13,6 +12,7 @@ import {
   Alert,
   Avatar,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { Pets, CheckCircle } from '@mui/icons-material';
 import { useProject } from '../contexts/ProjectContext';
 import { useAuth } from '../contexts/AuthContext';

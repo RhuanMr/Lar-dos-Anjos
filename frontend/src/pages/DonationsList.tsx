@@ -19,8 +19,8 @@ import {
   CircularProgress,
   Alert,
   Chip,
-  Grid,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import {
   Add,
   Search,

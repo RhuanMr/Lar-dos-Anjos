@@ -5,7 +5,6 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   Card,
   CardContent,
@@ -17,6 +16,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import {
   ContentCopy,
   Share as ShareIcon,
@@ -149,7 +149,7 @@ export const ShareAutoCadastro = () => {
                 >
                   {copied ? 'Copiado!' : 'Copiar Link'}
                 </Button>
-                {navigator.share && (
+                {typeof navigator.share === 'function' && (
                   <Button
                     variant="outlined"
                     startIcon={<ShareIcon />}

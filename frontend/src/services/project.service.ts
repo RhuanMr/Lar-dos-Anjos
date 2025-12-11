@@ -13,6 +13,7 @@ export interface ProjectCreate {
   instagram?: string;
   telefone?: string;
   email?: string;
+  foto?: string;
 }
 
 export const projectService = {

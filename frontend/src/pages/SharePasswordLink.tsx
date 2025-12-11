@@ -6,7 +6,6 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   Card,
   CardContent,
@@ -18,6 +17,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import {
   ContentCopy,
   Share as ShareIcon,

@@ -6,7 +6,6 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   MenuItem,
@@ -21,6 +20,7 @@ import {
   TableRow,
   Chip,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import {
   ArrowBack,
   Save,
@@ -32,7 +32,8 @@ import { donorService } from '../services/donor.service';
 import { donationService } from '../services/donation.service';
 import { userService } from '../services/user.service';
 import { useAuth } from '../contexts/AuthContext';
-import { Donor, DonorUpdate, Frequencia } from '../types/Donor';
+import { Donor, DonorUpdate } from '../types/Donor';
+import { Frequencia } from '../types';
 import { Donation } from '../types/Donation';
 import { User } from '../types/User';
 

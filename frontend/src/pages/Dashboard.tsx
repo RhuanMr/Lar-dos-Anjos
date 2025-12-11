@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   Card,
   CardContent,
   CircularProgress,
@@ -17,6 +16,7 @@ import {
   Avatar,
   Chip,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import {
   Pets,
   Favorite,
@@ -387,7 +387,7 @@ export const Dashboard = () => {
                 {recentAnimals.map((animal) => (
                   <ListItem
                     key={animal.id}
-                    button
+                    component="button"
                     onClick={() => navigate(`/animals/${animal.id}`)}
                   >
                     <ListItemAvatar>
@@ -444,7 +444,7 @@ export const Dashboard = () => {
                 {recentAdoptions.map((adoption) => (
                   <ListItem
                     key={adoption.id}
-                    button
+                    component="button"
                     onClick={() => navigate(`/adoptions/${adoption.id}`)}
                   >
                     <ListItemAvatar>

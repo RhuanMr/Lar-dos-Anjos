@@ -6,11 +6,11 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   Autocomplete,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import { ArrowBack, Save, PersonAdd, ExpandLess } from '@mui/icons-material';
 import Fuse from 'fuse.js';
 import { adminService } from '../services/admin.service';

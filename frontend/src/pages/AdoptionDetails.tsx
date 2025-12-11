@@ -6,7 +6,6 @@ import {
   Paper,
   TextField,
   Button,
-  Grid,
   Alert,
   CircularProgress,
   Divider,
@@ -16,6 +15,7 @@ import {
   IconButton,
   Collapse,
 } from '@mui/material';
+import { Grid } from '../components/Grid';
 import {
   ArrowBack,
   Edit,
@@ -89,7 +89,10 @@ export const AdoptionDetails = () => {
 
       setAdopter(adopterData.data);
       setAnimal(animalData);
-      setProject(projectData);
+      if (projectData.success && projectData.data) {
+        const { endereco, ...project } = projectData.data;
+        setProject(project);
+      }
 
       // Load updates
       await loadUpdates();
