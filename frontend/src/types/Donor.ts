@@ -1,4 +1,4 @@
-export type Frequencia = 'mensal' | 'pontual' | 'eventual';
+import { Frequencia } from './common';
 
 export interface Donor {
   id_usuario: string;

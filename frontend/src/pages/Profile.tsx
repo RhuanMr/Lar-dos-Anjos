@@ -17,7 +17,8 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { Edit, Save, ArrowBack, PhotoCamera } from '@mui/icons-material';
-import { userService, UserUpdate } from '../services/user.service';
+import { userService } from '../services/user.service';
+import { UserUpdate } from '../types';
 import { uploadService } from '../services/upload.service';
 import { cepService } from '../services/cep.service';
 import { useAuth } from '../contexts/AuthContext';
