@@ -26,7 +26,8 @@ export const AdminNew = () => {
   const location = useLocation();
   const { selectedProject } = useProject();
   const { hasRole, user } = useAuth();
-  const [selectedProjectState, setSelectedProjectState] = useState<Project | null>(null);
+  const [selectedProjectState, setSelectedProjectState] =
+    useState<Project | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -35,7 +36,7 @@ export const AdminNew = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showNewUserForm, setShowNewUserForm] = useState(false);
-  
+
   // Campos para novo usuário
   const [newUserNome, setNewUserNome] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
@@ -68,15 +69,20 @@ export const AdminNew = () => {
 
     const searchParams = new URLSearchParams(location.search);
     const projetoIdFromQuery = searchParams.get('projetoId');
-    const projetoIdFromParams = location.pathname.match(/\/projects\/([^/]+)\/admin\/new/)?.[1];
+    const projetoIdFromParams = location.pathname.match(
+      /\/projects\/([^/]+)\/admin\/new/
+    )?.[1];
     const projetoId = projetoIdFromParams || projetoIdFromQuery;
 
     if (projetoId) {
-      const projeto = projects.find(p => p.id === projetoId);
+      const projeto = projects.find((p) => p.id === projetoId);
       if (projeto && projeto.id !== selectedProjectState?.id) {
         setSelectedProjectState(projeto);
       }
-    } else if (selectedProject && selectedProject.id !== selectedProjectState?.id) {
+    } else if (
+      selectedProject &&
+      selectedProject.id !== selectedProjectState?.id
+    ) {
       setSelectedProjectState(selectedProject);
     }
   }, [projects, location.search, location.pathname, selectedProject]);
@@ -129,7 +135,7 @@ export const AdminNew = () => {
   const filteredUsers = useMemo(() => {
     if (!selectedUser || !selectedUser.nome) return users;
     const results = fuse.search(selectedUser.nome);
-    return results.map(result => result.item);
+    return results.map((result) => result.item);
   }, [selectedUser, fuse, users]);
 
   const handleCreateUser = async () => {
@@ -172,7 +178,7 @@ export const AdminNew = () => {
       setUsers([...users, newUser]);
       setSelectedUser(newUser);
       setShowNewUserForm(false);
-      
+
       // Limpar campos
       setNewUserNome('');
       setNewUserEmail('');
@@ -181,7 +187,7 @@ export const AdminNew = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.error ||
-        'Erro ao criar usuário. Verifique os dados e tente novamente.'
+          'Erro ao criar usuário. Verifique os dados e tente novamente.'
       );
     } finally {
       setLoading(false);
@@ -226,7 +232,7 @@ export const AdminNew = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.error ||
-        'Erro ao cadastrar administrador. Verifique os dados e tente novamente.'
+          'Erro ao cadastrar administrador. Verifique os dados e tente novamente.'
       );
     } finally {
       setLoading(false);
@@ -255,7 +261,12 @@ export const AdminNew = () => {
       )}
 
       <Paper sx={{ p: 3 }}>
-        <form onSubmit={(e) => { e.preventDefault(); }} noValidate>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+          noValidate
+        >
           <Grid container spacing={3}>
             {/* Seleção de Projeto */}
             <Grid item xs={12}>
@@ -267,10 +278,13 @@ export const AdminNew = () => {
                 loading={loadingProjects}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => {
-                  const isDisabled = !!selectedProject ||
-                    !!location.pathname.match(/\/projects\/([^/]+)\/admin\/new/) ||
+                  const isDisabled =
+                    !!selectedProject ||
+                    !!location.pathname.match(
+                      /\/projects\/([^/]+)\/admin\/new/
+                    ) ||
                     !!new URLSearchParams(location.search).get('projetoId');
-                  
+
                   return (
                     <TextField
                       {...params}
@@ -282,7 +296,9 @@ export const AdminNew = () => {
                 }}
                 disabled={
                   !!selectedProject ||
-                  !!location.pathname.match(/\/projects\/([^/]+)\/admin\/new/) ||
+                  !!location.pathname.match(
+                    /\/projects\/([^/]+)\/admin\/new/
+                  ) ||
                   !!new URLSearchParams(location.search).get('projetoId')
                 }
               />
@@ -346,7 +362,7 @@ export const AdminNew = () => {
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
-                        label="CPF"
+                        label="CPF (opcional)"
                         value={newUserCpf}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '');
@@ -354,9 +370,8 @@ export const AdminNew = () => {
                             setNewUserCpf(value);
                           }
                         }}
-                        inputProps={{ maxLength: 11, 'aria-required': 'true' }}
-                        helperText="11 dígitos"
-                        required={false}
+                        inputProps={{ maxLength: 11 }}
+                        helperText="11 dígitos (opcional)"
                       />
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -433,7 +448,9 @@ export const AdminNew = () => {
                 <Button
                   type="button"
                   variant="contained"
-                  startIcon={loading ? <CircularProgress size={20} /> : <Save />}
+                  startIcon={
+                    loading ? <CircularProgress size={20} /> : <Save />
+                  }
                   disabled={loading}
                   onClick={async () => {
                     // Validação manual antes de submeter
@@ -448,7 +465,10 @@ export const AdminNew = () => {
                         return;
                       }
                       // Validar CPF apenas se fornecido
-                      if (newUserCpf.trim() && newUserCpf.replace(/\D/g, '').length !== 11) {
+                      if (
+                        newUserCpf.trim() &&
+                        newUserCpf.replace(/\D/g, '').length !== 11
+                      ) {
                         setError('CPF deve ter 11 dígitos');
                         return;
                       }
@@ -456,11 +476,6 @@ export const AdminNew = () => {
                       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                       if (!emailRegex.test(newUserEmail.trim())) {
                         setError('Email inválido');
-                        return;
-                      }
-
-                      if (newUserCpf.replace(/\D/g, '').length !== 11) {
-                        setError('CPF deve ter 11 dígitos');
                         return;
                       }
 
@@ -482,11 +497,11 @@ export const AdminNew = () => {
                     }
                   }}
                 >
-                  {loading 
-                    ? 'Salvando...' 
-                    : showNewUserForm 
-                    ? 'Criar Usuário e Continuar' 
-                    : 'Salvar'}
+                  {loading
+                    ? 'Salvando...'
+                    : showNewUserForm
+                      ? 'Criar Usuário e Continuar'
+                      : 'Salvar'}
                 </Button>
               </Box>
             </Grid>
@@ -496,4 +511,3 @@ export const AdminNew = () => {
     </Box>
   );
 };
-

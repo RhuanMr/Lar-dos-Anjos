@@ -46,7 +46,10 @@ export const Header = () => {
   };
 
   return (
-    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <AppBar
+      position="fixed"
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    >
       <Toolbar>
         {/* Projeto */}
         <Box
@@ -67,12 +70,14 @@ export const Header = () => {
               <Pets />
             </Avatar>
           ) : (
-            <Avatar sx={{ width: 40, height: 40, mr: 1, bgcolor: 'secondary.main' }}>
+            <Avatar
+              sx={{ width: 40, height: 40, mr: 1, bgcolor: 'secondary.main' }}
+            >
               <Pets />
             </Avatar>
           )}
           <Typography variant="h6" component="div" sx={{ flexGrow: 0 }}>
-            {selectedProject?.nome || 'PawHub'}
+            {selectedProject?.nome || 'Lar dos Anjos'}
           </Typography>
         </Box>
 
@@ -80,17 +85,26 @@ export const Header = () => {
 
         {/* Usuário */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="body1" sx={{ display: { xs: 'none', sm: 'block' } }}>
+          <Typography
+            variant="body1"
+            sx={{ display: { xs: 'none', sm: 'block' } }}
+          >
             {user?.nome || 'Usuário'}
           </Typography>
           <Tooltip title="Meu perfil">
             <IconButton color="inherit" onClick={handleUserClick}>
               {user?.foto ? (
-                <Avatar src={user.foto} alt={user.nome} sx={{ width: 32, height: 32 }}>
+                <Avatar
+                  src={user.foto}
+                  alt={user.nome}
+                  sx={{ width: 32, height: 32 }}
+                >
                   <AccountCircle />
                 </Avatar>
               ) : (
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+                <Avatar
+                  sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}
+                >
                   <AccountCircle />
                 </Avatar>
               )}
@@ -101,4 +115,3 @@ export const Header = () => {
     </AppBar>
   );
 };
-

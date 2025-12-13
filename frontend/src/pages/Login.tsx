@@ -104,7 +104,7 @@ export const Login = () => {
 
     try {
       await login(email, senha);
-      
+
       // Redirecionar para seleção de projeto
       // A página SelectProject vai decidir se mostra a lista ou seleciona automaticamente
       navigate('/select-project', { replace: true });
@@ -139,7 +139,7 @@ export const Login = () => {
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom>
-            PawHub
+            Lar dos Anjos
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Faça login para acessar o sistema
@@ -220,4 +220,3 @@ export const Login = () => {
     </Box>
   );
 };
-
