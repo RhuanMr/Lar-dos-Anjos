@@ -3,11 +3,13 @@ import { ProjetoRepository } from '@/repositories/ProjetoRepository';
 import { Animal, AnimalCreate, AnimalUpdate } from '@/types/index';
 import { Role } from '@/types/enums';
 import { UsuarioRepository } from '@/repositories/UsuarioRepository';
+import { FuncionarioRepository } from '@/repositories/FuncionarioRepository';
 
 export class AnimalService {
   private repository = new AnimalRepository();
   private projetoRepository = new ProjetoRepository();
   private usuarioRepository = new UsuarioRepository();
+  private funcionarioRepository = new FuncionarioRepository();
 
   async listar(): Promise<Animal[]> {
     return this.repository.findAll();
@@ -111,13 +113,20 @@ export class AnimalService {
   }
 
   private async verificarPrivilegiosFuncionario(
-    _usuarioId: string,
-    _projetoId: string
+    usuarioId: string,
+    projetoId: string
   ): Promise<boolean> {
-    // Aqui você pode implementar a verificação de privilégios do funcionário
-    // Por enquanto, retorna false (pode ser implementado depois)
-    // Os parâmetros são prefixados com _ para indicar que são intencionalmente não usados
-    return false;
+    try {
+      const funcionario = await this.funcionarioRepository.findByUsuarioAndProjeto(
+        usuarioId,
+        projetoId
+      );
+      // Retorna true se o funcionário existe e tem privilégios
+      return funcionario !== null && funcionario.privilegios === true;
+    } catch (error) {
+      // Em caso de erro, retorna false (não tem privilégios)
+      return false;
+    }
   }
 }
 

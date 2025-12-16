@@ -2,6 +2,7 @@ import { AdocaoRepository } from '@/repositories/AdocaoRepository';
 import { AnimalRepository } from '@/repositories/AnimalRepository';
 import { ProjetoRepository } from '@/repositories/ProjetoRepository';
 import { UsuarioRepository } from '@/repositories/UsuarioRepository';
+import { FuncionarioRepository } from '@/repositories/FuncionarioRepository';
 import { Adocao, AdocaoCreate, AdocaoUpdate } from '@/types/index';
 import { Role } from '@/types/enums';
 
@@ -10,6 +11,7 @@ export class AdocaoService {
   private animalRepository = new AnimalRepository();
   private projetoRepository = new ProjetoRepository();
   private usuarioRepository = new UsuarioRepository();
+  private funcionarioRepository = new FuncionarioRepository();
 
   async listar(): Promise<Adocao[]> {
     return this.repository.findAll();
@@ -45,11 +47,15 @@ export class AdocaoService {
     const temPermissao =
       performador.roles.includes(Role.SUPER_ADMIN) ||
       performador.roles.includes(Role.ADMINISTRADOR) ||
-      performador.roles.includes(Role.FUNCIONARIO);
+      (performador.roles.includes(Role.FUNCIONARIO) &&
+        (await this.verificarPrivilegiosFuncionario(
+          performadoPor,
+          dados.id_projeto
+        )));
 
     if (!temPermissao) {
       throw new Error(
-        'Apenas SuperAdmin, Administrador ou Funcionário podem cadastrar adoções'
+        'Apenas SuperAdmin, Administrador ou Funcionário com privilégios podem cadastrar adoções'
       );
     }
 
@@ -98,18 +104,23 @@ export class AdocaoService {
       throw new Error('Usuário que está realizando a ação não encontrado');
     }
 
+    const adocao = await this.buscarPorId(id);
+
     const temPermissao =
       performador.roles.includes(Role.SUPER_ADMIN) ||
       performador.roles.includes(Role.ADMINISTRADOR) ||
-      performador.roles.includes(Role.FUNCIONARIO);
+      (performador.roles.includes(Role.FUNCIONARIO) &&
+        (await this.verificarPrivilegiosFuncionario(
+          performadoPor,
+          adocao.id_projeto
+        )));
 
     if (!temPermissao) {
       throw new Error(
-        'Apenas SuperAdmin, Administrador ou Funcionário podem atualizar adoções'
+        'Apenas SuperAdmin, Administrador ou Funcionário com privilégios podem atualizar adoções'
       );
     }
 
-    await this.buscarPorId(id);
     return this.repository.update(id, dados);
   }
 
@@ -132,6 +143,23 @@ export class AdocaoService {
 
     await this.buscarPorId(id);
     await this.repository.delete(id);
+  }
+
+  private async verificarPrivilegiosFuncionario(
+    usuarioId: string,
+    projetoId: string
+  ): Promise<boolean> {
+    try {
+      const funcionario = await this.funcionarioRepository.findByUsuarioAndProjeto(
+        usuarioId,
+        projetoId
+      );
+      // Retorna true se o funcionário existe e tem privilégios
+      return funcionario !== null && funcionario.privilegios === true;
+    } catch (error) {
+      // Em caso de erro, retorna false (não tem privilégios)
+      return false;
+    }
   }
 }
 

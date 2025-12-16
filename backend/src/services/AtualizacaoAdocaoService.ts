@@ -1,6 +1,7 @@
 import { AtualizacaoAdocaoRepository } from '@/repositories/AtualizacaoAdocaoRepository';
 import { AdocaoRepository } from '@/repositories/AdocaoRepository';
 import { UsuarioRepository } from '@/repositories/UsuarioRepository';
+import { FuncionarioRepository } from '@/repositories/FuncionarioRepository';
 import {
   AtualizacaoAdocao,
   AtualizacaoAdocaoCreate,
@@ -12,6 +13,7 @@ export class AtualizacaoAdocaoService {
   private repository = new AtualizacaoAdocaoRepository();
   private adocaoRepository = new AdocaoRepository();
   private usuarioRepository = new UsuarioRepository();
+  private funcionarioRepository = new FuncionarioRepository();
 
   async listar(): Promise<AtualizacaoAdocao[]> {
     return this.repository.findAll();
@@ -33,27 +35,31 @@ export class AtualizacaoAdocaoService {
     dados: AtualizacaoAdocaoCreate,
     performadoPor: string
   ): Promise<AtualizacaoAdocao> {
-    // Validar permissão - apenas funcionários podem criar atualizações
+    // Validar permissão
     const performador = await this.usuarioRepository.findById(performadoPor);
     if (!performador) {
       throw new Error('Usuário que está realizando a ação não encontrado');
-    }
-
-    const temPermissao =
-      performador.roles.includes(Role.SUPER_ADMIN) ||
-      performador.roles.includes(Role.ADMINISTRADOR) ||
-      performador.roles.includes(Role.FUNCIONARIO);
-
-    if (!temPermissao) {
-      throw new Error(
-        'Apenas SuperAdmin, Administrador ou Funcionário podem criar atualizações de adoção'
-      );
     }
 
     // Validar se adoção existe
     const adocao = await this.adocaoRepository.findById(dados.id_adocao);
     if (!adocao) {
       throw new Error('Adoção não encontrada');
+    }
+
+    const temPermissao =
+      performador.roles.includes(Role.SUPER_ADMIN) ||
+      performador.roles.includes(Role.ADMINISTRADOR) ||
+      (performador.roles.includes(Role.FUNCIONARIO) &&
+        (await this.verificarPrivilegiosFuncionario(
+          performadoPor,
+          adocao.id_projeto
+        )));
+
+    if (!temPermissao) {
+      throw new Error(
+        'Apenas SuperAdmin, Administrador ou Funcionário com privilégios podem criar atualizações de adoção'
+      );
     }
 
     // Validar se responsável existe
@@ -97,18 +103,29 @@ export class AtualizacaoAdocaoService {
       throw new Error('Usuário que está realizando a ação não encontrado');
     }
 
+    const atualizacao = await this.buscarPorId(id);
+    
+    // Buscar a adoção para obter o id_projeto
+    const adocao = await this.adocaoRepository.findById(atualizacao.id_adocao);
+    if (!adocao) {
+      throw new Error('Adoção não encontrada');
+    }
+
     const temPermissao =
       performador.roles.includes(Role.SUPER_ADMIN) ||
       performador.roles.includes(Role.ADMINISTRADOR) ||
-      performador.roles.includes(Role.FUNCIONARIO);
+      (performador.roles.includes(Role.FUNCIONARIO) &&
+        (await this.verificarPrivilegiosFuncionario(
+          performadoPor,
+          adocao.id_projeto
+        )));
 
     if (!temPermissao) {
       throw new Error(
-        'Apenas SuperAdmin, Administrador ou Funcionário podem atualizar atualizações de adoção'
+        'Apenas SuperAdmin, Administrador ou Funcionário com privilégios podem atualizar atualizações de adoção'
       );
     }
 
-    await this.buscarPorId(id);
     return this.repository.update(id, dados);
   }
 
@@ -131,6 +148,23 @@ export class AtualizacaoAdocaoService {
 
     await this.buscarPorId(id);
     await this.repository.delete(id);
+  }
+
+  private async verificarPrivilegiosFuncionario(
+    usuarioId: string,
+    projetoId: string
+  ): Promise<boolean> {
+    try {
+      const funcionario = await this.funcionarioRepository.findByUsuarioAndProjeto(
+        usuarioId,
+        projetoId
+      );
+      // Retorna true se o funcionário existe e tem privilégios
+      return funcionario !== null && funcionario.privilegios === true;
+    } catch (error) {
+      // Em caso de erro, retorna false (não tem privilégios)
+      return false;
+    }
   }
 }
 
