@@ -60,8 +60,9 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('selectedProject');
-      // Redirecionar para login apenas se não estiver já na página de login
-      if (window.location.pathname !== '/login') {
+      // Redirecionar para login apenas se não estiver já na página de login ou definindo senha
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && !currentPath.includes('/password')) {
         window.location.href = '/login';
       }
     }
