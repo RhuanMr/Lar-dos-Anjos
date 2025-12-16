@@ -191,9 +191,11 @@ export class UsuarioController {
         return;
       }
 
-      // Se não fornecer performadoPor, usar o ID do usuário autenticado (se houver)
-      const usuarioAutenticado = req.user?.id;
-      const performadoPorFinal = performadoPor || usuarioAutenticado;
+      // Se houver usuário autenticado, usar seu ID como performadoPor
+      // Se não houver (acesso público), performadoPor será undefined
+      // O service vai validar se permite definir senha sem autenticação
+      const usuarioAutenticado = (req as any).user?.id;
+      const performadoPorFinal = performadoPor || usuarioAutenticado || undefined;
 
       await this.service.definirSenha(id, senha, performadoPorFinal);
       const response: ApiResponse = {

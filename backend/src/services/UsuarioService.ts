@@ -167,10 +167,13 @@ export class UsuarioService {
     senha: string,
     performadoPor?: string
   ): Promise<void> {
-    // Verificar se o usuário existe
-    await this.buscarPorId(usuarioId);
+    // Buscar usuário diretamente do repository para verificar se já tem senha
+    const usuario = await this.repository.findById(usuarioId);
+    if (!usuario) {
+      throw new Error('Usuário não encontrado');
+    }
 
-    // Se performadoPor for fornecido, verificar permissões
+    // Se performadoPor for fornecido, verificar permissões (usuário autenticado)
     if (performadoPor) {
       const performador = await this.buscarPorId(performadoPor);
       const temPermissao =
@@ -181,6 +184,15 @@ export class UsuarioService {
       if (!temPermissao) {
         throw new Error(
           'Apenas SuperAdmin, Administrador ou o próprio usuário podem definir senha'
+        );
+      }
+    } else {
+      // Se não há performadoPor (acesso sem autenticação), só permite se o usuário ainda não tiver senha
+      // Isso permite definição inicial de senha via link compartilhado
+      const usuarioComSenha = usuario as any;
+      if (usuarioComSenha.senha_hash) {
+        throw new Error(
+          'Este usuário já possui senha definida. Para alterar a senha, é necessário estar autenticado.'
         );
       }
     }

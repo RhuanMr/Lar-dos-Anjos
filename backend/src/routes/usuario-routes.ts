@@ -36,9 +36,10 @@ router.patch(
   (req, res) => controller.promoverParaAdmin(req, res)
 );
 
+// Rota pública para definição inicial de senha (via link compartilhado)
+// Permite acesso sem autenticação para que usuários possam definir senha pela primeira vez
 router.patch(
   '/usuarios/:id/senha',
-  authenticateToken,
   (req, res) => controller.definirSenha(req, res)
 );
 
