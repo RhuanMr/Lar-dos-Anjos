@@ -1,11 +1,33 @@
 import axios from 'axios';
 
+// Determinar a URL base da API
+const getApiBaseURL = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  
+  if (envUrl) {
+    // Se já termina com /api, retorna como está
+    if (envUrl.endsWith('/api')) {
+      return envUrl;
+    }
+    // Caso contrário, adiciona /api
+    return `${envUrl}/api`;
+  }
+  
+  // Fallback para localhost (apenas em desenvolvimento)
+  const isProduction = import.meta.env.PROD;
+  if (isProduction) {
+    console.error(
+      '⚠️ VITE_API_URL não está configurada! ' +
+      'Configure a variável de ambiente no Vercel com a URL pública do backend. ' +
+      'Acesse: Settings → Environment Variables → Adicione VITE_API_URL'
+    );
+  }
+  
+  return 'http://localhost:3000/api';
+};
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL 
-    ? (import.meta.env.VITE_API_URL.endsWith('/api') 
-        ? import.meta.env.VITE_API_URL 
-        : `${import.meta.env.VITE_API_URL}/api`)
-    : 'http://localhost:3000/api',
+  baseURL: getApiBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
