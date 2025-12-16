@@ -35,9 +35,15 @@ export const SetPassword = () => {
   const isSuperAdmin = hasRole('SUPERADMIN');
   const isAdmin = hasRole('ADMINISTRADOR');
   const isOwnAccount = user?.id === id;
+  const isAuthenticated = !!user;
 
   // Verificar permissões
-  const hasPermission = isSuperAdmin || isAdmin || isOwnAccount;
+  // Permite acesso se:
+  // 1. Usuário autenticado (admin ou próprio usuário)
+  // 2. OU usuário não autenticado (primeira definição de senha via link compartilhado)
+  const hasPermission = isAuthenticated 
+    ? (isSuperAdmin || isAdmin || isOwnAccount)
+    : true; // Permite acesso sem autenticação para definição inicial de senha
 
   useEffect(() => {
     if (id) {
@@ -57,7 +63,10 @@ export const SetPassword = () => {
         setTargetUser(response.data);
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro ao carregar dados do usuário');
+      // Se falhar (por exemplo, sem autenticação), não é crítico
+      // Ainda permite definir a senha mesmo sem carregar os dados do usuário
+      console.warn('Não foi possível carregar dados do usuário:', err);
+      // Não define erro aqui, apenas continua sem os dados do usuário
     } finally {
       setLoading(false);
     }
@@ -104,10 +113,15 @@ export const SetPassword = () => {
       
       // Redirecionar após 2 segundos
       setTimeout(() => {
-        if (isOwnAccount) {
-          navigate('/profile');
+        if (isAuthenticated) {
+          if (isOwnAccount) {
+            navigate('/profile');
+          } else {
+            navigate(`/users/${id}`);
+          }
         } else {
-          navigate(`/users/${id}`);
+          // Se não estava autenticado, redireciona para login após definir senha
+          navigate('/login');
         }
       }, 2000);
     } catch (err: any) {
@@ -127,7 +141,8 @@ export const SetPassword = () => {
     );
   }
 
-  if (!hasPermission) {
+  // Verificação de permissões só para usuários autenticados
+  if (isAuthenticated && !hasPermission) {
     return (
       <Box>
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -144,23 +159,27 @@ export const SetPassword = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => {
-            if (isOwnAccount) {
-              navigate('/profile');
-            } else if (id) {
-              navigate(`/users/${id}`);
-            } else {
-              navigate('/dashboard');
-            }
-          }}
-          sx={{ mr: 2 }}
-        >
-          Voltar
-        </Button>
+        {isAuthenticated && (
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={() => {
+              if (isOwnAccount) {
+                navigate('/profile');
+              } else if (id) {
+                navigate(`/users/${id}`);
+              } else {
+                navigate('/dashboard');
+              }
+            }}
+            sx={{ mr: 2 }}
+          >
+            Voltar
+          </Button>
+        )}
         <Typography variant="h4" component="h1">
-          {isOwnAccount ? 'Alterar Minha Senha' : `Definir Senha - ${targetUser?.nome || 'Usuário'}`}
+          {isAuthenticated && isOwnAccount 
+            ? 'Alterar Minha Senha' 
+            : `Definir Senha - ${targetUser?.nome || 'Usuário'}`}
         </Typography>
       </Box>
 
@@ -181,9 +200,9 @@ export const SetPassword = () => {
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <Typography variant="body1" color="text.secondary" gutterBottom>
-                {isOwnAccount
+                {isAuthenticated && isOwnAccount
                   ? 'Digite sua nova senha abaixo:'
-                  : `Defina uma nova senha para ${targetUser?.nome || 'este usuário'}:`}
+                  : `Defina uma senha para ${targetUser?.nome || 'este usuário'}:`}
               </Typography>
             </Grid>
 
@@ -242,21 +261,23 @@ export const SetPassword = () => {
             <Grid item xs={12}>
               <Divider sx={{ my: 2 }} />
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    if (isOwnAccount) {
-                      navigate('/profile');
-                    } else if (id) {
-                      navigate(`/users/${id}`);
-                    } else {
-                      navigate('/dashboard');
-                    }
-                  }}
-                  disabled={saving || success}
-                >
-                  Cancelar
-                </Button>
+                {isAuthenticated && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      if (isOwnAccount) {
+                        navigate('/profile');
+                      } else if (id) {
+                        navigate(`/users/${id}`);
+                      } else {
+                        navigate('/dashboard');
+                      }
+                    }}
+                    disabled={saving || success}
+                  >
+                    Cancelar
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   variant="contained"

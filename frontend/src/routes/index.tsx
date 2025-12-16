@@ -225,11 +225,7 @@ export const AppRoutes = () => {
 
         <Route
           path="/users/:id/password"
-          element={
-            <RequireAuth>
-              <SetPassword />
-            </RequireAuth>
-          }
+          element={<SetPassword />}
         />
 
         <Route
